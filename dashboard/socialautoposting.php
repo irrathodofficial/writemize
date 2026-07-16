@@ -22,6 +22,7 @@ $config = require WRITEMIZE_ROOT . '/includes/config.php';
             </a>
             <nav class="nav">
                 <a href="index.php">Mission Control</a>
+                <a href="blogs.php">All Blogs</a>
                 <a href="websiteintegration.php">Website Integration</a>
                 <a href="socialautoposting.php" class="active">Social Auto Posting</a>
                 <a href="../logout.php">Logout</a>

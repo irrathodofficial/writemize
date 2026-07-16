@@ -36,6 +36,7 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
                 <a href="#agents">Agents</a>
                 <a href="#preview">Preview</a>
                 <a href="#recent">Recent Runs</a>
+                <a href="blogs.php">All Blogs</a>
                 <a href="websiteintegration.php">Website Integration</a>
                 <a href="socialautoposting.php">Social Auto Posting</a>
                 <a href="../logout.php">Logout</a>
