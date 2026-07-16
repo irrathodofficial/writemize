@@ -11,6 +11,7 @@ $config = require WRITEMIZE_ROOT . '/includes/config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Auto Posting | Writemize</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/app.css">
 </head>
 <body>
@@ -18,14 +19,13 @@ $config = require WRITEMIZE_ROOT . '/includes/config.php';
         <aside class="sidebar">
             <a class="brand" href="index.php">
                 <img class="brand-logo" src="../assets/images/logo.png" alt="Writemize">
-                <span><strong>Writemize</strong><small>Autonomous AI blogging</small></span>
             </a>
             <nav class="nav">
-                <a href="index.php">Mission Control</a>
-                <a href="blogs.php">All Blogs</a>
-                <a href="websiteintegration.php">Website Integration</a>
-                <a href="socialautoposting.php" class="active">Social Auto Posting</a>
-                <a href="../logout.php">Logout</a>
+                <a href="index.php"><i class="fa-solid fa-gauge-high"></i>Mission Control</a>
+                <a href="blogs.php"><i class="fa-solid fa-newspaper"></i>All Blogs</a>
+                <a href="websiteintegration.php"><i class="fa-solid fa-globe"></i>Website Integration</a>
+                <a href="socialautoposting.php" class="active"><i class="fa-solid fa-share-nodes"></i>Social Auto Posting</a>
+                <a href="../logout.php"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
             </nav>
         </aside>
         <main class="main">

@@ -18,6 +18,7 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($config['app']['name']) ?> | Autonomous AI Blogging Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/app.css">
 </head>
 <body>
@@ -25,21 +26,17 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
         <aside class="sidebar">
             <a class="brand" href="index.php" aria-label="Writemize dashboard">
                 <img class="brand-logo" src="../assets/images/logo.png" alt="Writemize">
-                <span>
-                    <strong>Writemize</strong>
-                    <small>Autonomous AI blogging</small>
-                </span>
             </a>
 
             <nav class="nav" aria-label="Dashboard">
-                <a href="#mission" class="active">Mission Control</a>
-                <a href="#agents">Agents</a>
-                <a href="#preview">Preview</a>
-                <a href="#recent">Recent Runs</a>
-                <a href="blogs.php">All Blogs</a>
-                <a href="websiteintegration.php">Website Integration</a>
-                <a href="socialautoposting.php">Social Auto Posting</a>
-                <a href="../logout.php">Logout</a>
+                <a href="#mission" class="active"><i class="fa-solid fa-gauge-high"></i>Mission Control</a>
+                <a href="#agents"><i class="fa-solid fa-robot"></i>Agents</a>
+                <a href="#preview"><i class="fa-solid fa-eye"></i>Preview</a>
+                <a href="#recent"><i class="fa-solid fa-clock-rotate-left"></i>Recent Runs</a>
+                <a href="blogs.php"><i class="fa-solid fa-newspaper"></i>All Blogs</a>
+                <a href="websiteintegration.php"><i class="fa-solid fa-globe"></i>Website Integration</a>
+                <a href="socialautoposting.php"><i class="fa-solid fa-share-nodes"></i>Social Auto Posting</a>
+                <a href="../logout.php"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
             </nav>
 
             <div class="system-card">
@@ -95,16 +92,17 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
             <section id="agents" class="agent-grid" aria-label="Agent progress">
                 <?php
                 $agents = [
-                    ['scout', 'Scout', 'Business context and website intelligence'],
-                    ['radar', 'Radar', 'Trend, topic, keyword, and intent research'],
-                    ['quill', 'Quill', 'SEO article drafting and DALL-E image brief'],
-                    ['warden', 'Warden', 'Readability, structure, and SEO quality control'],
-                    ['pulse', 'Pulse', 'Publishing rhythm and schedule preparation'],
-                    ['publisher', 'Publisher', 'Final public blog URL and handoff'],
+                    ['scout', 'Scout', 'fa-solid fa-binoculars', 'Business context and website intelligence'],
+                    ['radar', 'Radar', 'fa-solid fa-satellite-dish', 'Trend, topic, keyword, and intent research'],
+                    ['quill', 'Quill', 'fa-solid fa-feather-pointed', 'SEO article drafting and DALL-E image brief'],
+                    ['warden', 'Warden', 'fa-solid fa-shield-halved', 'Readability, structure, and SEO quality control'],
+                    ['pulse', 'Pulse', 'fa-solid fa-wave-square', 'Publishing rhythm and schedule preparation'],
+                    ['publisher', 'Publisher', 'fa-solid fa-paper-plane', 'Final public blog URL and handoff'],
                 ];
-                foreach ($agents as [$key, $name, $task]):
+                foreach ($agents as [$key, $name, $icon, $task]):
                 ?>
                     <article class="agent-card" id="agent-<?= e($key) ?>">
+                        <div class="agent-icon"><i class="<?= e($icon) ?>"></i></div>
                         <div class="agent-top">
                             <span><?= e($name) ?></span>
                             <small id="state-<?= e($key) ?>">Waiting</small>
