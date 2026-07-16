@@ -15,7 +15,7 @@ $config = require __DIR__ . '/../includes/config.php';
     <div class="shell">
         <aside class="sidebar">
             <a class="brand" href="index.php" aria-label="Writemize dashboard">
-                <span class="brand-mark">W</span>
+                <img class="brand-logo" src="../assets/images/logo.png" alt="Writemize">
                 <span>
                     <strong>Writemize</strong>
                     <small>Autonomous AI blogging</small>
@@ -41,7 +41,7 @@ $config = require __DIR__ . '/../includes/config.php';
         <main class="main">
             <header class="topbar">
                 <div>
-                    <p class="eyebrow">Scout -> Radar -> Writer -> Artist -> Optimizer -> Publisher</p>
+                    <p class="eyebrow">Scout -> Radar -> Quill -> Warden -> Pulse -> Publisher</p>
                     <h1>Autonomous AI Blogging Dashboard</h1>
                 </div>
                 <div class="clock" id="clock">--:--</div>
@@ -80,10 +80,10 @@ $config = require __DIR__ . '/../includes/config.php';
                 $agents = [
                     ['scout', 'Scout', 'Business context and website intelligence'],
                     ['radar', 'Radar', 'Trend, topic, keyword, and intent research'],
-                    ['writer', 'Writer', 'SEO article drafting in clean HTML'],
-                    ['artist', 'Artist', 'DALL-E featured image generation'],
-                    ['optimizer', 'Optimizer', 'Metadata, readability, and SEO scoring'],
-                    ['publisher', 'Publisher', 'Scheduling, URL, and final handoff'],
+                    ['quill', 'Quill', 'SEO article drafting and DALL-E image brief'],
+                    ['warden', 'Warden', 'Readability, structure, and SEO quality control'],
+                    ['pulse', 'Pulse', 'Publishing rhythm and schedule preparation'],
+                    ['publisher', 'Publisher', 'Final public blog URL and handoff'],
                 ];
                 foreach ($agents as [$key, $name, $task]):
                 ?>
@@ -115,7 +115,7 @@ $config = require __DIR__ . '/../includes/config.php';
                         <span><strong id="postStatus">Idle</strong></span>
                     </div>
                     <div id="articleHtml" class="article-html">
-                        <p>Your Writer, Artist, Optimizer, and Publisher output will render here after the pipeline completes.</p>
+                        <p>Your Quill, Warden, Pulse, and Publisher output will render here after the pipeline completes.</p>
                     </div>
                     <a id="publishUrl" class="publish-link" href="#" aria-disabled="true">Publish URL pending</a>
                 </article>

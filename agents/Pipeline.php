@@ -39,10 +39,11 @@ final class Pipeline
         try {
             $context = (new ScoutAgent())->run($input, $logs);
             $topic = (new RadarAgent($this->client))->run($context, $logs);
-            $article = (new WriterAgent($this->client))->run($context, $topic, $logs);
-            $art = (new ArtistAgent($this->client))->run($article, $logs);
-            $article = array_merge($article, $art);
-            $article = (new OptimizerAgent())->run($article, $topic, $logs);
+            $quill = new QuillAgent($this->client);
+            $article = $quill->run($context, $topic, $logs);
+            $article = $quill->createImage($article, $logs);
+            $article = (new WardenAgent())->run($article, $topic, $logs);
+            $article = (new PulseAgent())->run($article, $input, $logs);
             $article = (new PublisherAgent())->run($article, $input, $logs);
 
             $postId = $this->savePost($runId, $businessId, $article);

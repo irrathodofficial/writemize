@@ -1,4 +1,4 @@
-const agents = ["scout", "radar", "writer", "artist", "optimizer", "publisher"];
+const agents = ["scout", "radar", "quill", "warden", "pulse", "publisher"];
 const form = document.getElementById("pipelineForm");
 const launchBtn = document.getElementById("launchBtn");
 const terminalBody = document.getElementById("terminalBody");
@@ -85,10 +85,10 @@ async function loadRecentPosts() {
         }
 
         holder.innerHTML = posts.map((post) => `
-            <article class="recent-item">
+            <a class="recent-item" href="${escapeHtml(post.publish_url || "#")}">
                 <strong>${escapeHtml(post.title)}</strong>
                 <small>${escapeHtml(post.status)} | SEO ${Number(post.seo_score || 0)} | ${escapeHtml(post.scheduled_for || post.created_at || "")}</small>
-            </article>
+            </a>
         `).join("");
     } catch (error) {
         holder.innerHTML = "<p>Recent runs unavailable until MySQL is connected.</p>";
