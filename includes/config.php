@@ -20,9 +20,15 @@ if (!defined('WRITEMIZE_STARTED_AT')) {
 
 require_once WRITEMIZE_ROOT . '/includes/helpers.php';
 
-$envFile = WRITEMIZE_ROOT . '/.env.php';
-if (is_file($envFile)) {
-    writemize_load_env_file($envFile);
+$envFiles = [
+    WRITEMIZE_ROOT . '/.env',
+    WRITEMIZE_ROOT . '/.env.php',
+];
+
+foreach ($envFiles as $envFile) {
+    if (is_file($envFile)) {
+        writemize_load_env_file($envFile);
+    }
 }
 
 $timezone = env('TIMEZONE', 'UTC');

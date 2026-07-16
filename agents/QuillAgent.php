@@ -44,28 +44,40 @@ final class QuillAgent
     {
         $logs[] = 'Quill Agent: sending featured image brief to DALL-E.';
         $prompt = (string) ($article['image_prompt'] ?? $this->imagePrompt((string) ($article['title'] ?? 'AI blogging dashboard')));
-        $remoteUrl = $this->client->image($prompt);
-        $article['image_url'] = $remoteUrl;
+        $image = $this->client->image($prompt);
 
-        if ($remoteUrl !== null) {
-            $localUrl = $this->storeGeneratedImage($remoteUrl, (string) ($article['title'] ?? 'writemize-blog'), $logs);
+        if (isset($image['url'])) {
+            $remoteUrl = (string) $image['url'];
+            $localUrl = $this->storeGeneratedImageFromUrl($remoteUrl, (string) ($article['title'] ?? 'writemize-blog'), $logs);
             if ($localUrl !== null) {
                 $article['image_url'] = $localUrl;
                 $article['image_source_url'] = $remoteUrl;
+                return $article;
             }
+
+            throw new \RuntimeException('DALL-E image was generated, but Writemize could not save it locally.');
         }
 
-        return $article;
+        if (isset($image['b64_json'])) {
+            $bytes = base64_decode((string) $image['b64_json'], true);
+            if (!is_string($bytes) || $bytes === '') {
+                throw new \RuntimeException('DALL-E returned image data, but it could not be decoded.');
+            }
+
+            $localUrl = $this->storeGeneratedImageBytes($bytes, (string) ($article['title'] ?? 'writemize-blog'), $logs);
+            if ($localUrl !== null) {
+                $article['image_url'] = $localUrl;
+                return $article;
+            }
+
+            throw new \RuntimeException('DALL-E image was generated, but Writemize could not save it locally.');
+        }
+
+        throw new \RuntimeException('DALL-E did not return a featured image.');
     }
 
-    private function storeGeneratedImage(string $remoteUrl, string $title, array &$logs): ?string
+    private function storeGeneratedImageFromUrl(string $remoteUrl, string $title, array &$logs): ?string
     {
-        $directory = \WRITEMIZE_ROOT . '/assets/images/blogimages';
-        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
-            $logs[] = 'Quill Agent: could not create assets/images/blogimages folder.';
-            return null;
-        }
-
         $context = stream_context_create([
             'http' => ['timeout' => 45, 'user_agent' => 'WritemizeBot/1.0'],
             'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
@@ -74,6 +86,17 @@ final class QuillAgent
 
         if (!is_string($bytes) || $bytes === '') {
             $logs[] = 'Quill Agent: DALL-E image URL received, but local image download failed.';
+            return null;
+        }
+
+        return $this->storeGeneratedImageBytes($bytes, $title, $logs);
+    }
+
+    private function storeGeneratedImageBytes(string $bytes, string $title, array &$logs): ?string
+    {
+        $directory = \WRITEMIZE_ROOT . '/assets/images/blogimages';
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            $logs[] = 'Quill Agent: could not create assets/images/blogimages folder.';
             return null;
         }
 

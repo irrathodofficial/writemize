@@ -33,7 +33,7 @@ final class OpenAiClient
     public function json(string $systemPrompt, string $userPrompt, array $fallback): array
     {
         if (!$this->configured() || !function_exists('curl_init')) {
-            return $fallback;
+            throw new \RuntimeException('OpenAI API key is not configured, so real blog generation cannot run.');
         }
 
         $payload = [
@@ -50,13 +50,17 @@ final class OpenAiClient
         $content = (string) ($response['choices'][0]['message']['content'] ?? '');
         $decoded = json_decode($content, true);
 
-        return is_array($decoded) ? $decoded : $fallback;
+        if (!is_array($decoded)) {
+            throw new \RuntimeException('OpenAI returned article content that was not valid JSON.');
+        }
+
+        return $decoded;
     }
 
-    public function image(string $prompt): ?string
+    public function image(string $prompt): ?array
     {
         if (!$this->configured() || !function_exists('curl_init')) {
-            return null;
+            throw new \RuntimeException('OpenAI API key is not configured, so featured image generation cannot run.');
         }
 
         $payload = [
@@ -64,13 +68,26 @@ final class OpenAiClient
             'prompt' => $prompt,
             'n' => 1,
             'size' => '1024x1024',
-            'quality' => 'standard',
         ];
+
+        if ($this->imageModel === 'dall-e-3') {
+            $payload['quality'] = 'standard';
+            $payload['response_format'] = 'url';
+        }
 
         $response = $this->postJson('https://api.openai.com/v1/images/generations', $payload, 120);
         $url = (string) ($response['data'][0]['url'] ?? '');
+        $b64 = (string) ($response['data'][0]['b64_json'] ?? '');
 
-        return $url !== '' ? $url : null;
+        if ($url !== '') {
+            return ['url' => $url];
+        }
+
+        if ($b64 !== '') {
+            return ['b64_json' => $b64];
+        }
+
+        throw new \RuntimeException('OpenAI image generation finished but did not return an image URL or image data.');
     }
 
     private function postJson(string $url, array $payload, int $timeout): array
