@@ -17,7 +17,7 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($config['app']['name']) ?> | Autonomous AI Blogging Dashboard</title>
+    <title><?= e($config['app']['name']) ?> | Autonomous AI Blogging</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/app.css">
 </head>
@@ -27,6 +27,15 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
             <a class="brand" href="index.php" aria-label="Writemize dashboard">
                 <img class="brand-logo" src="../assets/images/logo.png" alt="Writemize">
             </a>
+
+            <div class="sidebar-workflow" aria-hidden="true">
+                <span class="workflow-node workflow-left workflow-1"><i class="fa-solid fa-binoculars"></i>Scout</span>
+                <span class="workflow-node workflow-right workflow-2"><i class="fa-solid fa-satellite-dish"></i>Radar</span>
+                <span class="workflow-node workflow-left workflow-3"><i class="fa-solid fa-feather-pointed"></i>Quill</span>
+                <span class="workflow-node workflow-right workflow-4"><i class="fa-solid fa-shield-halved"></i>Warden</span>
+                <span class="workflow-node workflow-left workflow-5"><i class="fa-solid fa-wave-square"></i>Pulse</span>
+                <span class="workflow-node workflow-right workflow-6"><i class="fa-solid fa-paper-plane"></i>Publisher</span>
+            </div>
 
             <nav class="nav" aria-label="Dashboard">
                 <a href="#mission" class="active"><i class="fa-solid fa-gauge-high"></i>Mission Control</a>
@@ -52,7 +61,7 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
             <header class="topbar">
                 <div>
                     <p class="eyebrow">Scout -> Radar -> Quill -> Warden -> Pulse -> Publisher</p>
-                    <h1>Autonomous AI Blogging Dashboard</h1>
+                    <h1>Autonomous AI Blogging</h1>
                     <p class="dashboard-welcome">Welcome, <?= e($user['name']) ?>. Set your daily time once; cron will run the agents for you.</p>
                 </div>
                 <div class="clock" id="clock">--:--</div>
@@ -101,7 +110,7 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
                 ];
                 foreach ($agents as [$key, $name, $icon, $task]):
                 ?>
-                    <article class="agent-card" id="agent-<?= e($key) ?>">
+                    <article class="agent-card" id="agent-<?= e($key) ?>" role="button" tabindex="0" data-agent="<?= e($key) ?>" aria-label="Open <?= e($name) ?> agent details">
                         <div class="agent-icon"><i class="<?= e($icon) ?>"></i></div>
                         <div class="agent-top">
                             <span><?= e($name) ?></span>
@@ -148,6 +157,29 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
                 </aside>
             </section>
         </main>
+    </div>
+
+    <div class="agent-modal" id="agentModal" aria-hidden="true">
+        <div class="agent-modal-backdrop" data-close-agent-modal></div>
+        <section class="agent-modal-panel" role="dialog" aria-modal="true" aria-labelledby="agentModalTitle">
+            <button class="agent-modal-close" type="button" data-close-agent-modal aria-label="Close agent details">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="agent-modal-icon" id="agentModalIcon"></div>
+            <p class="eyebrow" id="agentModalStage">Agent Detail</p>
+            <h2 id="agentModalTitle">Agent</h2>
+            <p id="agentModalSummary" class="agent-modal-summary"></p>
+            <div class="agent-modal-grid">
+                <article>
+                    <strong><i class="fa-solid fa-circle-nodes"></i> Inputs</strong>
+                    <ul id="agentModalInputs"></ul>
+                </article>
+                <article>
+                    <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Outputs</strong>
+                    <ul id="agentModalOutputs"></ul>
+                </article>
+            </div>
+        </section>
     </div>
 
     <script src="../assets/js/app.js"></script>

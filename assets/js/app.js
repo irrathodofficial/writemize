@@ -4,6 +4,56 @@ const launchBtn = document.getElementById("launchBtn");
 const activateBtn = document.getElementById("activateBtn");
 const terminalBody = document.getElementById("terminalBody");
 const runState = document.getElementById("runState");
+const agentDetails = {
+    scout: {
+        icon: "fa-solid fa-binoculars",
+        title: "Scout Agent",
+        stage: "Business Intelligence",
+        summary: "Scout reads the business website, extracts positioning, audience, tone, niche, and the content strategy that all later agents use.",
+        inputs: ["Business name", "Website URL", "Readable website text", "Saved business profile"],
+        outputs: ["Business niche", "Audience profile", "Brand tone", "Content strategy prompt", "Stored Scout context in MySQL"]
+    },
+    radar: {
+        icon: "fa-solid fa-satellite-dish",
+        title: "Radar Agent",
+        stage: "Trend and SEO Research",
+        summary: "Radar turns Scout context into search-driven topic opportunities by analyzing intent, keyword angle, competitor-style positioning, and viral relevance.",
+        inputs: ["Scout business context", "Niche and audience", "Content strategy", "Existing topic history"],
+        outputs: ["SEO topic", "Focus keyword", "Search intent", "Related keywords", "Competitor angles"]
+    },
+    quill: {
+        icon: "fa-solid fa-feather-pointed",
+        title: "Quill Agent",
+        stage: "Article and Image Creation",
+        summary: "Quill writes the blog in clean semantic HTML and prepares the DALL-E featured image brief using the selected topic and brand context.",
+        inputs: ["Radar topic", "Focus keyword", "Scout tone", "Audience and business strategy"],
+        outputs: ["SEO article draft", "Meta description", "Featured image prompt", "Generated image saved locally"]
+    },
+    warden: {
+        icon: "fa-solid fa-shield-halved",
+        title: "Warden Agent",
+        stage: "Quality Control",
+        summary: "Warden audits the article for structure, readability, metadata, keyword usage, and readiness before the post can move forward.",
+        inputs: ["Quill article HTML", "Focus keyword", "Meta description", "Article structure"],
+        outputs: ["SEO score", "Word count", "Reading time", "Approved or review-ready status"]
+    },
+    pulse: {
+        icon: "fa-solid fa-wave-square",
+        title: "Pulse Agent",
+        stage: "Publishing Rhythm",
+        summary: "Pulse prepares the schedule and keeps the daily publishing cadence aligned with the business posting time.",
+        inputs: ["Publish time", "Business schedule", "Approved article", "Daily cron rules"],
+        outputs: ["Scheduled timestamp", "Daily cadence status", "Cron-ready publishing handoff"]
+    },
+    publisher: {
+        icon: "fa-solid fa-paper-plane",
+        title: "Publisher Agent",
+        stage: "Final Blog Handoff",
+        summary: "Publisher creates the public blog URL, final status, and stores the finished post so it appears in Preview and All Blogs.",
+        inputs: ["Approved article", "Scheduled data", "Slug", "Featured image URL"],
+        outputs: ["Public blog URL", "Saved blog post", "Preview page", "All Blogs library entry"]
+    }
+};
 
 function updateClock() {
     const now = new Date();
@@ -31,6 +81,40 @@ function setAgent(agent, state, pct) {
     card.classList.toggle("error", state === "Error");
     label.textContent = state;
     bar.style.width = `${pct}%`;
+}
+
+function fillList(element, items) {
+    element.innerHTML = "";
+    items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        element.appendChild(li);
+    });
+}
+
+function openAgentModal(agent) {
+    const detail = agentDetails[agent];
+    const modal = document.getElementById("agentModal");
+    if (!detail || !modal) return;
+
+    document.getElementById("agentModalIcon").innerHTML = `<i class="${detail.icon}"></i>`;
+    document.getElementById("agentModalStage").textContent = detail.stage;
+    document.getElementById("agentModalTitle").textContent = detail.title;
+    document.getElementById("agentModalSummary").textContent = detail.summary;
+    fillList(document.getElementById("agentModalInputs"), detail.inputs);
+    fillList(document.getElementById("agentModalOutputs"), detail.outputs);
+
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+}
+
+function closeAgentModal() {
+    const modal = document.getElementById("agentModal");
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
 }
 
 function resetAgents() {
@@ -101,6 +185,33 @@ function renderArticle(article) {
         link.removeAttribute("aria-disabled");
         link.classList.remove("is-pending");
     }
+}
+
+function scrollToBlogPreview() {
+    const preview = document.getElementById("preview");
+    if (!preview) return;
+
+    preview.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    let userMoved = false;
+    const markMoved = () => {
+        userMoved = true;
+    };
+    const options = { once: true, passive: true };
+
+    window.addEventListener("wheel", markMoved, options);
+    window.addEventListener("touchstart", markMoved, options);
+    window.addEventListener("keydown", markMoved, { once: true });
+
+    setTimeout(() => {
+        window.removeEventListener("wheel", markMoved);
+        window.removeEventListener("touchstart", markMoved);
+        window.removeEventListener("keydown", markMoved);
+
+        if (!userMoved) {
+            preview.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, 4500);
 }
 
 async function loadRecentPosts() {
@@ -199,6 +310,7 @@ form.addEventListener("submit", async (event) => {
         }
 
         renderArticle(data.article || {});
+        scrollToBlogPreview();
         runState.textContent = data.openai_configured ? "Complete" : "Complete (local fallback)";
         logLine("Dashboard preview updated.");
         await loadRecentPosts();
@@ -253,6 +365,26 @@ activateBtn.addEventListener("click", async () => {
         activateBtn.disabled = false;
         launchBtn.disabled = false;
         activateBtn.textContent = "AI Agent Activate";
+    }
+});
+
+document.querySelectorAll(".agent-card[data-agent]").forEach((card) => {
+    card.addEventListener("click", () => openAgentModal(card.dataset.agent));
+    card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openAgentModal(card.dataset.agent);
+        }
+    });
+});
+
+document.querySelectorAll("[data-close-agent-modal]").forEach((element) => {
+    element.addEventListener("click", closeAgentModal);
+});
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        closeAgentModal();
     }
 });
 
