@@ -1,8 +1,28 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(190) NOT NULL,
+    email VARCHAR(190) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS businesses (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
     name VARCHAR(190) NOT NULL,
     website_url VARCHAR(2048) NOT NULL,
     publish_time TIME NULL,
+    daily_posting_enabled TINYINT(1) NOT NULL DEFAULT 1,
+    last_daily_run_date DATE NULL,
+    scout_context JSON NULL,
+    niche VARCHAR(190) NULL,
+    tone VARCHAR(190) NULL,
+    audience VARCHAR(255) NULL,
+    content_strategy TEXT NULL,
+    last_scouted_url VARCHAR(2048) NULL,
+    last_scouted_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

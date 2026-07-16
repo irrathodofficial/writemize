@@ -1,7 +1,19 @@
 <?php
 declare(strict_types=1);
 
-$config = require __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/auth.php';
+$user = require_login();
+$config = require WRITEMIZE_ROOT . '/includes/config.php';
+
+$stmt = $pdo->prepare('SELECT * FROM businesses WHERE user_id = :user_id ORDER BY id DESC LIMIT 1');
+$stmt->execute([':user_id' => (int) $user['id']]);
+$business = $stmt->fetch() ?: [];
+$businessName = (string) ($business['name'] ?? $user['name']);
+$websiteUrl = (string) ($business['website_url'] ?? 'https://example.com');
+$publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
+$niche = (string) ($business['niche'] ?? 'Not activated yet');
+$strategy = (string) ($business['content_strategy'] ?? 'Activate the AI agent to store Scout research for this business.');
+$lastScoutedAt = (string) ($business['last_scouted_at'] ?? 'Pending');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,6 +39,7 @@ $config = require __DIR__ . '/../includes/config.php';
                 <a href="#agents">Agents</a>
                 <a href="#preview">Preview</a>
                 <a href="#recent">Recent Runs</a>
+                <a href="../logout.php">Logout</a>
             </nav>
 
             <div class="system-card">
@@ -43,6 +56,7 @@ $config = require __DIR__ . '/../includes/config.php';
                 <div>
                     <p class="eyebrow">Scout -> Radar -> Quill -> Warden -> Pulse -> Publisher</p>
                     <h1>Autonomous AI Blogging Dashboard</h1>
+                    <p class="dashboard-welcome">Welcome, <?= e($user['name']) ?>. Set your daily time once; cron will run the agents for you.</p>
                 </div>
                 <div class="clock" id="clock">--:--</div>
             </header>
@@ -51,17 +65,28 @@ $config = require __DIR__ . '/../includes/config.php';
                 <form id="pipelineForm" class="control-panel">
                     <div class="field wide">
                         <label for="businessName">Business name</label>
-                        <input id="businessName" name="business_name" type="text" value="Writemize" autocomplete="organization">
+                        <input id="businessName" name="business_name" type="text" value="<?= e($businessName) ?>" autocomplete="organization">
                     </div>
                     <div class="field wide">
                         <label for="websiteUrl">Website URL</label>
-                        <input id="websiteUrl" name="website_url" type="url" value="https://example.com" required>
+                        <input id="websiteUrl" name="website_url" type="url" value="<?= e($websiteUrl) ?>" required>
                     </div>
                     <div class="field">
                         <label for="publishTime">Publish time</label>
-                        <input id="publishTime" name="publish_time" type="time" value="09:00">
+                        <input id="publishTime" name="publish_time" type="time" value="<?= e($publishTime ?: '09:00') ?>">
                     </div>
-                    <button id="launchBtn" type="submit">Run Pipeline</button>
+                    <div class="action-row wide">
+                        <button id="activateBtn" type="button">AI Agent Activate</button>
+                        <button id="launchBtn" type="submit">Run AI Agent</button>
+                    </div>
+                    <div class="business-memory wide" id="businessMemory">
+                        <strong>Business memory</strong>
+                        <span>Website: <b id="savedWebsite"><?= e($websiteUrl) ?></b></span>
+                        <span>Daily time: <b id="savedTime"><?= e($publishTime ?: '09:00') ?></b></span>
+                        <span>Niche: <b id="savedNiche"><?= e($niche) ?></b></span>
+                        <small id="savedStrategy"><?= e($strategy) ?></small>
+                        <small>Last Scout research: <b id="lastScoutedAt"><?= e($lastScoutedAt) ?></b></small>
+                    </div>
                 </form>
 
                 <div class="terminal" aria-live="polite">
@@ -117,7 +142,7 @@ $config = require __DIR__ . '/../includes/config.php';
                     <div id="articleHtml" class="article-html">
                         <p>Your Quill, Warden, Pulse, and Publisher output will render here after the pipeline completes.</p>
                     </div>
-                    <a id="publishUrl" class="publish-link" href="#" aria-disabled="true">Publish URL pending</a>
+                    <a id="publishUrl" class="publish-link is-pending" href="#" aria-disabled="true">Publish URL will appear here after Publisher finishes</a>
                 </article>
 
                 <aside id="recent" class="recent-panel">

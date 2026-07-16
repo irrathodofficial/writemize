@@ -28,16 +28,19 @@ final class Pipeline
         $logs = ['Pipeline: request accepted.'];
         $businessName = \clean_text($input['business_name'] ?? 'Writemize Business', 160);
         $websiteUrl = \clean_text($input['website_url'] ?? '', 2048);
+        $userId = (int) ($input['user_id'] ?? 0);
+        $requestedBusinessId = (int) ($input['business_id'] ?? 0);
 
         if ($websiteUrl === '' || filter_var($websiteUrl, FILTER_VALIDATE_URL) === false) {
             throw new \InvalidArgumentException('Please enter a valid website URL.');
         }
 
-        $businessId = $this->upsertBusiness($businessName, $websiteUrl, \clean_text($input['publish_time'] ?? '09:00', 20));
+        $businessId = $this->upsertBusiness($businessName, $websiteUrl, \clean_text($input['publish_time'] ?? '09:00', 20), $userId, $requestedBusinessId);
         $runId = $this->createRun($businessId);
 
         try {
             $context = (new ScoutAgent())->run($input, $logs);
+            $this->storeScoutContext($businessId, $context);
             $topic = (new RadarAgent($this->client))->run($context, $logs);
             $quill = new QuillAgent($this->client);
             $article = $quill->run($context, $topic, $logs);
@@ -64,13 +67,41 @@ final class Pipeline
         }
     }
 
-    private function upsertBusiness(string $name, string $websiteUrl, string $publishTime): int
+    private function upsertBusiness(string $name, string $websiteUrl, string $publishTime, int $userId = 0, int $requestedBusinessId = 0): int
     {
-        $stmt = $this->pdo->prepare('INSERT INTO businesses (name, website_url, publish_time) VALUES (:name, :website_url, :publish_time)');
+        $existingId = 0;
+        if ($requestedBusinessId > 0) {
+            $find = $this->pdo->prepare('SELECT id FROM businesses WHERE id = :id LIMIT 1');
+            $find->execute([':id' => $requestedBusinessId]);
+            $existingId = (int) ($find->fetchColumn() ?: 0);
+        }
+
+        if ($userId > 0) {
+            $find = $this->pdo->prepare('SELECT id FROM businesses WHERE user_id = :user_id ORDER BY id DESC LIMIT 1');
+            $find->execute([':user_id' => $userId]);
+            $existingId = $existingId > 0 ? $existingId : (int) ($find->fetchColumn() ?: 0);
+        }
+
+        $time = preg_match('/^\d{2}:\d{2}$/', $publishTime) === 1 ? $publishTime . ':00' : null;
+
+        if ($existingId > 0) {
+            $stmt = $this->pdo->prepare('UPDATE businesses SET name = :name, website_url = :website_url, publish_time = :publish_time, daily_posting_enabled = 1, updated_at = CURRENT_TIMESTAMP WHERE id = :id');
+            $stmt->execute([
+                ':name' => $name !== '' ? $name : 'Writemize Business',
+                ':website_url' => $websiteUrl,
+                ':publish_time' => $time,
+                ':id' => $existingId,
+            ]);
+
+            return $existingId;
+        }
+
+        $stmt = $this->pdo->prepare('INSERT INTO businesses (user_id, name, website_url, publish_time, daily_posting_enabled) VALUES (:user_id, :name, :website_url, :publish_time, 1)');
         $stmt->execute([
+            ':user_id' => $userId > 0 ? $userId : null,
             ':name' => $name !== '' ? $name : 'Writemize Business',
             ':website_url' => $websiteUrl,
-            ':publish_time' => preg_match('/^\d{2}:\d{2}$/', $publishTime) === 1 ? $publishTime . ':00' : null,
+            ':publish_time' => $time,
         ]);
 
         return (int) $this->pdo->lastInsertId();
@@ -82,6 +113,20 @@ final class Pipeline
         $stmt->execute([':business_id' => $businessId, ':status' => 'running']);
 
         return (int) $this->pdo->lastInsertId();
+    }
+
+    private function storeScoutContext(int $businessId, array $context): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE businesses SET scout_context = :scout_context, niche = :niche, tone = :tone, audience = :audience, content_strategy = :content_strategy, last_scouted_url = :last_scouted_url, last_scouted_at = CURRENT_TIMESTAMP WHERE id = :id');
+        $stmt->execute([
+            ':scout_context' => json_encode($context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            ':niche' => \clean_text($context['niche'] ?? '', 190),
+            ':tone' => \clean_text($context['tone'] ?? '', 190),
+            ':audience' => \clean_text($context['audience'] ?? '', 255),
+            ':content_strategy' => (string) ($context['content_strategy'] ?? ''),
+            ':last_scouted_url' => \clean_text($context['website_url'] ?? '', 2048),
+            ':id' => $businessId,
+        ]);
     }
 
     private function savePost(int $runId, int $businessId, array $article): int

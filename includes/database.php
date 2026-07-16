@@ -33,8 +33,18 @@ function ensure_schema(PDO $pdo): void
     }
 
     $pdo->exec($schema);
+    ensure_column($pdo, 'businesses', 'user_id', 'INT UNSIGNED NULL');
     ensure_column($pdo, 'businesses', 'name', "VARCHAR(190) NOT NULL DEFAULT 'Writemize Business'");
     ensure_column($pdo, 'businesses', 'updated_at', 'TIMESTAMP NULL DEFAULT NULL');
+    ensure_column($pdo, 'businesses', 'daily_posting_enabled', 'TINYINT(1) NOT NULL DEFAULT 1');
+    ensure_column($pdo, 'businesses', 'last_daily_run_date', 'DATE NULL');
+    ensure_column($pdo, 'businesses', 'scout_context', 'JSON NULL');
+    ensure_column($pdo, 'businesses', 'niche', 'VARCHAR(190) NULL');
+    ensure_column($pdo, 'businesses', 'tone', 'VARCHAR(190) NULL');
+    ensure_column($pdo, 'businesses', 'audience', 'VARCHAR(255) NULL');
+    ensure_column($pdo, 'businesses', 'content_strategy', 'TEXT NULL');
+    ensure_column($pdo, 'businesses', 'last_scouted_url', 'VARCHAR(2048) NULL');
+    ensure_column($pdo, 'businesses', 'last_scouted_at', 'DATETIME NULL');
     ensure_column($pdo, 'blog_runs', 'logs', 'JSON NULL');
     ensure_column($pdo, 'blog_posts', 'scheduled_for', 'DATETIME NULL');
 }

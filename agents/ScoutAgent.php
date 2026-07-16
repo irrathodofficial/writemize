@@ -22,6 +22,8 @@ final class ScoutAgent
             'niche' => $this->inferNiche($host, $text),
             'tone' => 'clear, expert, practical',
             'audience' => 'buyers researching better ways to grow online',
+            'content_strategy' => $this->contentStrategy($host, $text),
+            'blog_brief' => 'Act as an experienced SEO content writer for this business. Write useful, brand-safe, search-friendly blogs that explain problems, compare options, answer buyer questions, and guide readers toward action without sounding generic.',
         ];
     }
 
@@ -55,5 +57,12 @@ final class ScoutAgent
         }
 
         return str_replace(['www.', '.com', '.in', '.co'], '', strtolower($host));
+    }
+
+    private function contentStrategy(string $host, string $text): string
+    {
+        $niche = $this->inferNiche($host, $text);
+
+        return 'Create practical, SEO-friendly articles for a ' . $niche . ' business. Prioritize high-intent topics, competitor-aware angles, clear examples, buyer education, FAQs, and conversion-focused conclusions. Keep tone expert, simple, trustworthy, and action-oriented.';
     }
 }

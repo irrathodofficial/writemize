@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 use Writemize\Agents\Pipeline;
 
-require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 try {
+    $user = require_login();
     $config = require WRITEMIZE_ROOT . '/includes/config.php';
     $input = read_json_body();
+    $input['user_id'] = (int) $user['id'];
     $pipeline = new Pipeline($pdo, $config);
     $result = $pipeline->run($input);
 

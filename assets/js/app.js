@@ -1,6 +1,7 @@
 const agents = ["scout", "radar", "quill", "warden", "pulse", "publisher"];
 const form = document.getElementById("pipelineForm");
 const launchBtn = document.getElementById("launchBtn");
+const activateBtn = document.getElementById("activateBtn");
 const terminalBody = document.getElementById("terminalBody");
 const runState = document.getElementById("runState");
 
@@ -33,6 +34,19 @@ function setAgent(agent, state, pct) {
 
 function resetAgents() {
     agents.forEach((agent) => setAgent(agent, "Waiting", 0));
+}
+
+function formPayload() {
+    return JSON.stringify(Object.fromEntries(new FormData(form)));
+}
+
+function updateBusinessMemory(business) {
+    if (!business) return;
+    document.getElementById("savedWebsite").textContent = business.website_url || "";
+    document.getElementById("savedTime").textContent = business.publish_time || "";
+    document.getElementById("savedNiche").textContent = business.niche || "Stored";
+    document.getElementById("savedStrategy").textContent = business.content_strategy || "Scout research stored.";
+    document.getElementById("lastScoutedAt").textContent = "Just now";
 }
 
 async function animateAgents() {
@@ -68,6 +82,7 @@ function renderArticle(article) {
     if (article.publish_url) {
         link.href = article.publish_url;
         link.removeAttribute("aria-disabled");
+        link.classList.remove("is-pending");
     }
 }
 
@@ -110,6 +125,7 @@ form.addEventListener("submit", async (event) => {
     resetAgents();
     terminalBody.innerHTML = "";
     launchBtn.disabled = true;
+    activateBtn.disabled = true;
     launchBtn.textContent = "Running";
     runState.textContent = "Running";
     logLine("Launching Writemize pipeline.");
@@ -120,7 +136,7 @@ form.addEventListener("submit", async (event) => {
         const response = await fetch("../api/run_pipeline.php", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify(Object.fromEntries(new FormData(form)))
+            body: formPayload()
         });
 
         const data = await response.json();
@@ -144,7 +160,49 @@ form.addEventListener("submit", async (event) => {
         logLine(error.message || "Pipeline failed.");
     } finally {
         launchBtn.disabled = false;
-        launchBtn.textContent = "Run Pipeline";
+        activateBtn.disabled = false;
+        launchBtn.textContent = "Run AI Agent";
+    }
+});
+
+activateBtn.addEventListener("click", async () => {
+    resetAgents();
+    terminalBody.innerHTML = "";
+    activateBtn.disabled = true;
+    launchBtn.disabled = true;
+    activateBtn.textContent = "Activating";
+    runState.textContent = "Activating";
+    setAgent("scout", "Running", 45);
+    logLine("Saving business URL, daily time, and activating Scout Agent.");
+
+    try {
+        const response = await fetch("../api/activate_agent.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: formPayload()
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Activation failed.");
+        }
+
+        for (const line of data.logs || []) {
+            logLine(line);
+        }
+
+        setAgent("scout", "Done", 100);
+        updateBusinessMemory(data.business);
+        runState.textContent = "Activated";
+        logLine("Business memory is ready. Run AI Agent now, or cron will run it at the saved daily time.");
+    } catch (error) {
+        setAgent("scout", "Stopped", 0);
+        runState.textContent = "Error";
+        logLine(error.message || "Activation failed.");
+    } finally {
+        activateBtn.disabled = false;
+        launchBtn.disabled = false;
+        activateBtn.textContent = "AI Agent Activate";
     }
 });
 

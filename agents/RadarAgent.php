@@ -22,11 +22,12 @@ final class RadarAgent
             'search_intent' => 'commercial education',
             'angle' => 'show how an autonomous agent workflow improves research, drafting, imagery, optimization, and publishing',
             'related_keywords' => ['AI content workflow', 'automated blog writing', 'SEO content automation'],
+            'competitor_angles' => ['automation speed', 'SEO quality control', 'daily publishing consistency'],
         ];
 
         return $this->client->json(
             'You are Radar Agent, an SEO and trend research specialist. Return only JSON.',
-            'Using this business context, choose one high-opportunity blog topic. Include keys: topic, focus_keyword, search_intent, angle, related_keywords. Context: ' . json_encode($context),
+            'Using this business context, act like an SEO strategist and competitor analyst. Choose one viral, SEO-friendly blog topic for this business. Include keys: topic, focus_keyword, search_intent, angle, related_keywords, competitor_angles. Context: ' . json_encode($context),
             $fallback
         );
     }
