@@ -13,9 +13,23 @@ try {
     $pipeline = new Pipeline($pdo, $config);
     $result = $pipeline->run($input);
 
+    if (!empty($result['error'])) {
+        json_response([
+            'success' => false,
+            'error' => $result['error'],
+            'logs' => $result['logs'],
+            'completed_agents' => $result['completed_agents'],
+            'failed_agent' => $result['failed_agent'],
+            'run_id' => $result['run_id'],
+            'openai_configured' => $result['openai_configured'],
+        ], 502);
+    }
+
     json_response([
         'success' => true,
         'logs' => $result['logs'],
+        'completed_agents' => $result['completed_agents'],
+        'failed_agent' => $result['failed_agent'],
         'article' => $result['article'],
         'run_id' => $result['run_id'],
         'post_id' => $result['post_id'],

@@ -23,9 +23,12 @@ final class Pipeline
         );
     }
 
-    public function run(array $input): array
+    public function run(array $input, ?callable $emit = null): array
     {
         $logs = ['Pipeline: request accepted.'];
+        $completedAgents = [];
+        $currentAgent = 'scout';
+        $this->emit($emit, ['type' => 'log', 'message' => 'Pipeline: request accepted.']);
         $businessName = \clean_text($input['business_name'] ?? 'Writemize Business', 160);
         $websiteUrl = \clean_text($input['website_url'] ?? '', 2048);
         $userId = (int) ($input['user_id'] ?? 0);
@@ -39,31 +42,92 @@ final class Pipeline
         $runId = $this->createRun($businessId);
 
         try {
+            $logs[] = 'Scout Agent: started.';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'scout', 'state' => 'Running', 'pct' => 35]);
+            $this->emit($emit, ['type' => 'log', 'message' => 'Scout Agent: started.']);
             $context = (new ScoutAgent())->run($input, $logs);
             $this->storeScoutContext($businessId, $context);
+            $completedAgents[] = 'scout';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'scout', 'state' => 'Done', 'pct' => 100]);
+
+            $currentAgent = 'radar';
+            $logs[] = 'Radar Agent: started.';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'radar', 'state' => 'Running', 'pct' => 35]);
+            $this->emit($emit, ['type' => 'log', 'message' => 'Radar Agent: started.']);
             $topic = (new RadarAgent($this->client))->run($context, $logs);
+            $completedAgents[] = 'radar';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'radar', 'state' => 'Done', 'pct' => 100]);
+
+            $currentAgent = 'quill';
+            $logs[] = 'Quill Agent: started.';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'quill', 'state' => 'Running', 'pct' => 35]);
+            $this->emit($emit, ['type' => 'log', 'message' => 'Quill Agent: started.']);
             $quill = new QuillAgent($this->client);
             $article = $quill->run($context, $topic, $logs);
             $article = $quill->createImage($article, $logs);
+            $completedAgents[] = 'quill';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'quill', 'state' => 'Done', 'pct' => 100]);
+
+            $currentAgent = 'warden';
+            $logs[] = 'Warden Agent: started.';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'warden', 'state' => 'Running', 'pct' => 35]);
+            $this->emit($emit, ['type' => 'log', 'message' => 'Warden Agent: started.']);
             $article = (new WardenAgent())->run($article, $topic, $logs);
+            $completedAgents[] = 'warden';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'warden', 'state' => 'Done', 'pct' => 100]);
+
+            $currentAgent = 'pulse';
+            $logs[] = 'Pulse Agent: started.';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'pulse', 'state' => 'Running', 'pct' => 35]);
+            $this->emit($emit, ['type' => 'log', 'message' => 'Pulse Agent: started.']);
             $article = (new PulseAgent())->run($article, $input, $logs);
+            $completedAgents[] = 'pulse';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'pulse', 'state' => 'Done', 'pct' => 100]);
+
+            $currentAgent = 'publisher';
+            $logs[] = 'Publisher Agent: started.';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'publisher', 'state' => 'Running', 'pct' => 35]);
+            $this->emit($emit, ['type' => 'log', 'message' => 'Publisher Agent: started.']);
             $article = (new PublisherAgent())->run($article, $input, $logs);
+            $completedAgents[] = 'publisher';
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'publisher', 'state' => 'Done', 'pct' => 100]);
 
             $postId = $this->savePost($runId, $businessId, $article);
             $this->completeRun($runId, $article, $logs);
             $logs[] = 'Pipeline: completed successfully.';
+            $this->emit($emit, ['type' => 'log', 'message' => 'Pipeline: completed successfully.']);
 
             return [
                 'run_id' => $runId,
                 'post_id' => $postId,
                 'logs' => $logs,
+                'completed_agents' => $completedAgents,
+                'failed_agent' => null,
                 'article' => $article,
                 'openai_configured' => $this->client->configured(),
             ];
         } catch (Throwable $exception) {
             $logs[] = 'Pipeline error: ' . $exception->getMessage();
             $this->failRun($runId, $logs);
-            throw $exception;
+            $this->emit($emit, ['type' => 'agent', 'agent' => $currentAgent, 'state' => 'Error', 'pct' => 100]);
+            $this->emit($emit, ['type' => 'log', 'message' => $exception->getMessage()]);
+            return [
+                'run_id' => $runId,
+                'post_id' => null,
+                'logs' => $logs,
+                'completed_agents' => $completedAgents,
+                'failed_agent' => $currentAgent,
+                'article' => null,
+                'openai_configured' => $this->client->configured(),
+                'error' => $exception->getMessage(),
+            ];
+        }
+    }
+
+    private function emit(?callable $emit, array $event): void
+    {
+        if ($emit !== null) {
+            $emit($event);
         }
     }
 

@@ -28,6 +28,7 @@ function setAgent(agent, state, pct) {
 
     card.classList.toggle("active", state === "Running");
     card.classList.toggle("done", state === "Done");
+    card.classList.toggle("error", state === "Error");
     label.textContent = state;
     bar.style.width = `${pct}%`;
 }
@@ -44,13 +45,34 @@ function updateBusinessMemory(business) {
     return business;
 }
 
-async function animateAgents() {
-    for (const agent of agents) {
-        setAgent(agent, "Running", 35);
-        await new Promise((resolve) => setTimeout(resolve, 320));
-        setAgent(agent, "Running", 75);
-        await new Promise((resolve) => setTimeout(resolve, 320));
-        setAgent(agent, "Done", 100);
+function applyPipelineState(completedAgents, failedAgent) {
+    const completed = Array.isArray(completedAgents) ? completedAgents : [];
+    let failedSeen = false;
+
+    agents.forEach((agent) => {
+        if (completed.includes(agent)) {
+            setAgent(agent, "Done", 100);
+            return;
+        }
+
+        if (failedAgent === agent) {
+            setAgent(agent, "Error", 100);
+            failedSeen = true;
+            return;
+        }
+
+        setAgent(agent, failedSeen ? "Waiting" : "Waiting", 0);
+    });
+}
+
+function handleLiveEvent(event) {
+    if (event.type === "log" && event.message) {
+        logLine(event.message);
+        return;
+    }
+
+    if (event.type === "agent" && event.agent) {
+        setAgent(event.agent, event.state || "Running", Number(event.pct || 35));
     }
 }
 
@@ -125,32 +147,65 @@ form.addEventListener("submit", async (event) => {
     runState.textContent = "Running";
     logLine("Launching Writemize pipeline.");
 
-    const animation = animateAgents();
+    setAgent("scout", "Running", 20);
 
     try {
-        const response = await fetch("../api/run_pipeline.php", {
+        const response = await fetch("../api/run_pipeline_live.php", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
             body: formPayload()
         });
 
-        const data = await response.json();
+        if (!response.body) {
+            throw new Error("Live pipeline stream is unavailable in this browser.");
+        }
 
-        if (!response.ok || !data.success) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let finalEvent = null;
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                const eventData = JSON.parse(line);
+                handleLiveEvent(eventData);
+                if (eventData.type === "final") {
+                    finalEvent = eventData;
+                }
+            }
+        }
+
+        if (buffer.trim()) {
+            const eventData = JSON.parse(buffer);
+            handleLiveEvent(eventData);
+            if (eventData.type === "final") {
+                finalEvent = eventData;
+            }
+        }
+
+        const data = finalEvent || { success: false, error: "Pipeline ended without a final response." };
+        applyPipelineState(data.completed_agents || [], data.failed_agent || null);
+
+        if (!data.success) {
             throw new Error(data.error || "Pipeline failed.");
         }
 
-        for (const line of data.logs || []) {
-            logLine(line);
-        }
-
-        await animation;
         renderArticle(data.article || {});
         runState.textContent = data.openai_configured ? "Complete" : "Complete (local fallback)";
         logLine("Dashboard preview updated.");
         await loadRecentPosts();
     } catch (error) {
-        agents.forEach((agent) => setAgent(agent, "Stopped", 0));
+        if (!agents.some((agent) => document.getElementById(`state-${agent}`).textContent === "Error")) {
+            setAgent("scout", "Error", 100);
+        }
         runState.textContent = "Error";
         logLine(error.message || "Pipeline failed.");
     } finally {
@@ -191,7 +246,7 @@ activateBtn.addEventListener("click", async () => {
         runState.textContent = "Activated";
         logLine("AI Agent is activated. Run AI Agent now, or cron will run it at the saved daily time.");
     } catch (error) {
-        setAgent("scout", "Stopped", 0);
+        setAgent("scout", "Error", 100);
         runState.textContent = "Error";
         logLine(error.message || "Activation failed.");
     } finally {
