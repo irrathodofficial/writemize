@@ -26,14 +26,10 @@ try {
 }
 
 // API Credentials Setup
-$openAiKey = '';
-$serpApiKey = '';
+$openAiKey = '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';
+$serpApiKey = '250918d68e0a62af2025e488cca5ea2bb84cfc364bfd5c74ca893b423872110b';
 
 // Check if our secret local file exists and load it
 if (file_exists(__DIR__ . '/.env.php')) {
     require_once __DIR__ . '/.env.php';
 }
-
-// Set environment variables so Scout agent can read them
-putenv("OPENAI_API_KEY=" . $openAiKey);
-putenv("SERPAPI_KEY=" . $serpApiKey);
