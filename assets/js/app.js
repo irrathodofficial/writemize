@@ -41,12 +41,7 @@ function formPayload() {
 }
 
 function updateBusinessMemory(business) {
-    if (!business) return;
-    document.getElementById("savedWebsite").textContent = business.website_url || "";
-    document.getElementById("savedTime").textContent = business.publish_time || "";
-    document.getElementById("savedNiche").textContent = business.niche || "Stored";
-    document.getElementById("savedStrategy").textContent = business.content_strategy || "Scout research stored.";
-    document.getElementById("lastScoutedAt").textContent = "Just now";
+    return business;
 }
 
 async function animateAgents() {
@@ -194,7 +189,7 @@ activateBtn.addEventListener("click", async () => {
         setAgent("scout", "Done", 100);
         updateBusinessMemory(data.business);
         runState.textContent = "Activated";
-        logLine("Business memory is ready. Run AI Agent now, or cron will run it at the saved daily time.");
+        logLine("AI Agent is activated. Run AI Agent now, or cron will run it at the saved daily time.");
     } catch (error) {
         setAgent("scout", "Stopped", 0);
         runState.textContent = "Error";

@@ -11,9 +11,6 @@ $business = $stmt->fetch() ?: [];
 $businessName = (string) ($business['name'] ?? $user['name']);
 $websiteUrl = (string) ($business['website_url'] ?? 'https://example.com');
 $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
-$niche = (string) ($business['niche'] ?? 'Not activated yet');
-$strategy = (string) ($business['content_strategy'] ?? 'Activate the AI agent to store Scout research for this business.');
-$lastScoutedAt = (string) ($business['last_scouted_at'] ?? 'Pending');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,6 +36,8 @@ $lastScoutedAt = (string) ($business['last_scouted_at'] ?? 'Pending');
                 <a href="#agents">Agents</a>
                 <a href="#preview">Preview</a>
                 <a href="#recent">Recent Runs</a>
+                <a href="websiteintegration.php">Website Integration</a>
+                <a href="socialautoposting.php">Social Auto Posting</a>
                 <a href="../logout.php">Logout</a>
             </nav>
 
@@ -78,14 +77,6 @@ $lastScoutedAt = (string) ($business['last_scouted_at'] ?? 'Pending');
                     <div class="action-row wide">
                         <button id="activateBtn" type="button">AI Agent Activate</button>
                         <button id="launchBtn" type="submit">Run AI Agent</button>
-                    </div>
-                    <div class="business-memory wide" id="businessMemory">
-                        <strong>Business memory</strong>
-                        <span>Website: <b id="savedWebsite"><?= e($websiteUrl) ?></b></span>
-                        <span>Daily time: <b id="savedTime"><?= e($publishTime ?: '09:00') ?></b></span>
-                        <span>Niche: <b id="savedNiche"><?= e($niche) ?></b></span>
-                        <small id="savedStrategy"><?= e($strategy) ?></small>
-                        <small>Last Scout research: <b id="lastScoutedAt"><?= e($lastScoutedAt) ?></b></small>
                     </div>
                 </form>
 

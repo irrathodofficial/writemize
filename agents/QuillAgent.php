@@ -44,9 +44,50 @@ final class QuillAgent
     {
         $logs[] = 'Quill Agent: sending featured image brief to DALL-E.';
         $prompt = (string) ($article['image_prompt'] ?? $this->imagePrompt((string) ($article['title'] ?? 'AI blogging dashboard')));
-        $article['image_url'] = $this->client->image($prompt);
+        $remoteUrl = $this->client->image($prompt);
+        $article['image_url'] = $remoteUrl;
+
+        if ($remoteUrl !== null) {
+            $localUrl = $this->storeGeneratedImage($remoteUrl, (string) ($article['title'] ?? 'writemize-blog'), $logs);
+            if ($localUrl !== null) {
+                $article['image_url'] = $localUrl;
+                $article['image_source_url'] = $remoteUrl;
+            }
+        }
 
         return $article;
+    }
+
+    private function storeGeneratedImage(string $remoteUrl, string $title, array &$logs): ?string
+    {
+        $directory = \WRITEMIZE_ROOT . '/assets/images/blogimages';
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            $logs[] = 'Quill Agent: could not create assets/images/blogimages folder.';
+            return null;
+        }
+
+        $context = stream_context_create([
+            'http' => ['timeout' => 45, 'user_agent' => 'WritemizeBot/1.0'],
+            'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
+        ]);
+        $bytes = @file_get_contents($remoteUrl, false, $context);
+
+        if (!is_string($bytes) || $bytes === '') {
+            $logs[] = 'Quill Agent: DALL-E image URL received, but local image download failed.';
+            return null;
+        }
+
+        $filename = \slugify($title) . '-' . date('Ymd-His') . '-' . bin2hex(random_bytes(3)) . '.png';
+        $path = $directory . '/' . $filename;
+
+        if (file_put_contents($path, $bytes) === false) {
+            $logs[] = 'Quill Agent: generated image could not be saved locally.';
+            return null;
+        }
+
+        $logs[] = 'Quill Agent: image saved to assets/images/blogimages/' . $filename;
+
+        return rtrim((string) \env('APP_URL', 'http://localhost/Writemize'), '/') . '/assets/images/blogimages/' . $filename;
     }
 
     private function imagePrompt(string $title): string
