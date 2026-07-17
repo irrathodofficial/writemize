@@ -30,7 +30,7 @@ $config = require __DIR__ . '/includes/config.php';
             <div class="landing-copy">
                 <p class="eyebrow">Scout -> Radar -> Quill -> Warden -> Pulse -> Publisher</p>
                 <h1>Writemize</h1>
-                <h2>Autonomous AI blogging dashboard.</h2>
+                <h2>Autonomous AI blogging.</h2>
                 <p>Connect a business website once. Writemize studies the brand, discovers daily SEO topics, writes complete blog posts, generates featured images, audits quality, and prepares publishing on schedule.</p>
                 <div class="landing-actions">
                     <a href="register.php">Create Account</a>
