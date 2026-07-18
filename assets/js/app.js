@@ -196,6 +196,15 @@ function handleLiveEvent(event) {
     }
 }
 
+function parseStreamEvent(line) {
+    try {
+        return JSON.parse(line);
+    } catch (error) {
+        const plain = line.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+        throw new Error(plain || "Pipeline stream returned invalid JSON.");
+    }
+}
+
 function renderArticle(article) {
     document.getElementById("articleTitle").textContent = article.title || "Generated Blog Article";
     document.getElementById("metaDescription").textContent = article.meta_description || "";
@@ -324,7 +333,7 @@ form.addEventListener("submit", async (event) => {
 
             for (const line of lines) {
                 if (!line.trim()) continue;
-                const eventData = JSON.parse(line);
+                const eventData = parseStreamEvent(line);
                 handleLiveEvent(eventData);
                 if (eventData.type === "final") {
                     finalEvent = eventData;
@@ -333,7 +342,7 @@ form.addEventListener("submit", async (event) => {
         }
 
         if (buffer.trim()) {
-            const eventData = JSON.parse(buffer);
+            const eventData = parseStreamEvent(buffer);
             handleLiveEvent(eventData);
             if (eventData.type === "final") {
                 finalEvent = eventData;
@@ -356,7 +365,7 @@ form.addEventListener("submit", async (event) => {
     } catch (error) {
         stopHeartbeat();
         if (!agents.some((agent) => document.getElementById(`state-${agent}`).textContent === "Error")) {
-            setAgent("scout", "Error", 100);
+            setAgent(activeAgent || "scout", "Error", 100);
         }
         activeAgent = null;
         runState.textContent = "Error";

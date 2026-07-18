@@ -42,8 +42,11 @@ final class OpenAiClient
                 ['role' => 'system', 'content' => $systemPrompt],
                 ['role' => 'user', 'content' => $userPrompt],
             ],
-            'temperature' => 0.65,
         ];
+
+        if (!$this->usesDefaultTemperatureOnly()) {
+            $payload['temperature'] = 0.65;
+        }
 
         $response = $this->postJson('https://api.openai.com/v1/chat/completions', $payload, 120);
         $content = (string) ($response['choices'][0]['message']['content'] ?? '');
@@ -130,5 +133,10 @@ final class OpenAiClient
         }
 
         return $decoded;
+    }
+
+    private function usesDefaultTemperatureOnly(): bool
+    {
+        return str_starts_with(strtolower($this->textModel), 'gpt-5');
     }
 }
