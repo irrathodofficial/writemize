@@ -26,7 +26,7 @@ final class RadarAgent
         ];
 
         return $this->client->json(
-            'You are Radar Agent, an SEO and trend research specialist. Return only JSON.',
+            'You are Radar Agent, an SEO and trend research specialist. Return valid JSON only. Do not include markdown fences, prose, or explanations.',
             'Using this business context, act like an SEO strategist and competitor analyst. Choose one viral, SEO-friendly blog topic for this business. Include keys: topic, focus_keyword, search_intent, angle, related_keywords, competitor_angles. Context: ' . json_encode($context),
             $fallback
         );

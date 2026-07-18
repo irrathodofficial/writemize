@@ -45,7 +45,11 @@ final class Pipeline
             $logs[] = 'Scout Agent: started.';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'scout', 'state' => 'Running', 'pct' => 35]);
             $this->emit($emit, ['type' => 'log', 'message' => 'Scout Agent: started.']);
+            $this->streamLog($logs, $emit, 'Scout Agent: fetching website content and extracting brand context.');
+            $logCursor = count($logs);
             $context = (new ScoutAgent())->run($input, $logs);
+            $this->emitNewLogs($emit, $logs, $logCursor);
+            $this->streamLog($logs, $emit, 'Scout Agent: storing business niche, tone, audience, and content strategy.');
             $this->storeScoutContext($businessId, $context);
             $completedAgents[] = 'scout';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'scout', 'state' => 'Done', 'pct' => 100]);
@@ -54,7 +58,11 @@ final class Pipeline
             $logs[] = 'Radar Agent: started.';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'radar', 'state' => 'Running', 'pct' => 35]);
             $this->emit($emit, ['type' => 'log', 'message' => 'Radar Agent: started.']);
+            $this->streamLog($logs, $emit, 'Radar Agent: sending business context to OpenAI for SEO topic research.');
+            $logCursor = count($logs);
             $topic = (new RadarAgent($this->client))->run($context, $logs);
+            $this->emitNewLogs($emit, $logs, $logCursor);
+            $this->streamLog($logs, $emit, 'Radar Agent: selected topic "' . \clean_text($topic['topic'] ?? 'Untitled topic', 120) . '" with focus keyword "' . \clean_text($topic['focus_keyword'] ?? '', 80) . '".');
             $completedAgents[] = 'radar';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'radar', 'state' => 'Done', 'pct' => 100]);
 
@@ -63,8 +71,17 @@ final class Pipeline
             $this->emit($emit, ['type' => 'agent', 'agent' => 'quill', 'state' => 'Running', 'pct' => 35]);
             $this->emit($emit, ['type' => 'log', 'message' => 'Quill Agent: started.']);
             $quill = new QuillAgent($this->client);
+            $this->streamLog($logs, $emit, 'Quill Agent: asking OpenAI to draft the full website-specific SEO article.');
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'quill', 'state' => 'Running', 'pct' => 55]);
+            $logCursor = count($logs);
             $article = $quill->run($context, $topic, $logs);
+            $this->emitNewLogs($emit, $logs, $logCursor);
+            $this->streamLog($logs, $emit, 'Quill Agent: article draft received; preparing DALL-E featured image request.');
+            $this->emit($emit, ['type' => 'agent', 'agent' => 'quill', 'state' => 'Running', 'pct' => 75]);
+            $logCursor = count($logs);
             $article = $quill->createImage($article, $logs);
+            $this->emitNewLogs($emit, $logs, $logCursor);
+            $this->streamLog($logs, $emit, 'Quill Agent: featured image ready and attached to article preview.');
             $completedAgents[] = 'quill';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'quill', 'state' => 'Done', 'pct' => 100]);
 
@@ -72,7 +89,11 @@ final class Pipeline
             $logs[] = 'Warden Agent: started.';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'warden', 'state' => 'Running', 'pct' => 35]);
             $this->emit($emit, ['type' => 'log', 'message' => 'Warden Agent: started.']);
+            $this->streamLog($logs, $emit, 'Warden Agent: checking metadata, headings, readability, keyword usage, and word count.');
+            $logCursor = count($logs);
             $article = (new WardenAgent())->run($article, $topic, $logs);
+            $this->emitNewLogs($emit, $logs, $logCursor);
+            $this->streamLog($logs, $emit, 'Warden Agent: SEO score calculated at ' . (int) ($article['seo_score'] ?? 0) . '.');
             $completedAgents[] = 'warden';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'warden', 'state' => 'Done', 'pct' => 100]);
 
@@ -80,7 +101,11 @@ final class Pipeline
             $logs[] = 'Pulse Agent: started.';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'pulse', 'state' => 'Running', 'pct' => 35]);
             $this->emit($emit, ['type' => 'log', 'message' => 'Pulse Agent: started.']);
+            $this->streamLog($logs, $emit, 'Pulse Agent: applying daily publish time and preparing schedule.');
+            $logCursor = count($logs);
             $article = (new PulseAgent())->run($article, $input, $logs);
+            $this->emitNewLogs($emit, $logs, $logCursor);
+            $this->streamLog($logs, $emit, 'Pulse Agent: scheduled for ' . \clean_text($article['scheduled_for'] ?? 'pending', 40) . '.');
             $completedAgents[] = 'pulse';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'pulse', 'state' => 'Done', 'pct' => 100]);
 
@@ -88,7 +113,11 @@ final class Pipeline
             $logs[] = 'Publisher Agent: started.';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'publisher', 'state' => 'Running', 'pct' => 35]);
             $this->emit($emit, ['type' => 'log', 'message' => 'Publisher Agent: started.']);
+            $this->streamLog($logs, $emit, 'Publisher Agent: creating slug, public preview URL, and final handoff.');
+            $logCursor = count($logs);
             $article = (new PublisherAgent())->run($article, $input, $logs);
+            $this->emitNewLogs($emit, $logs, $logCursor);
+            $this->streamLog($logs, $emit, 'Publisher Agent: publish URL ready: ' . \clean_text($article['publish_url'] ?? 'pending', 180));
             $completedAgents[] = 'publisher';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'publisher', 'state' => 'Done', 'pct' => 100]);
 
@@ -128,6 +157,20 @@ final class Pipeline
     {
         if ($emit !== null) {
             $emit($event);
+        }
+    }
+
+    private function streamLog(array &$logs, ?callable $emit, string $message): void
+    {
+        $logs[] = $message;
+        $this->emit($emit, ['type' => 'log', 'message' => $message]);
+    }
+
+    private function emitNewLogs(?callable $emit, array $logs, int $fromIndex): void
+    {
+        $count = count($logs);
+        for ($i = $fromIndex; $i < $count; $i++) {
+            $this->emit($emit, ['type' => 'log', 'message' => (string) $logs[$i]]);
         }
     }
 

@@ -37,17 +37,6 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
                 <span class="workflow-node workflow-right workflow-6"><i class="fa-solid fa-paper-plane"></i>Publisher</span>
             </div>
 
-            <nav class="nav" aria-label="Dashboard">
-                <a href="#mission" class="active"><i class="fa-solid fa-gauge-high"></i>Mission Control</a>
-                <a href="#agents"><i class="fa-solid fa-robot"></i>Agents</a>
-                <a href="#preview"><i class="fa-solid fa-eye"></i>Preview</a>
-                <a href="#recent"><i class="fa-solid fa-clock-rotate-left"></i>Recent Runs</a>
-                <a href="blogs.php"><i class="fa-solid fa-newspaper"></i>All Blogs</a>
-                <a href="websiteintegration.php"><i class="fa-solid fa-globe"></i>Website Integration</a>
-                <a href="socialautoposting.php"><i class="fa-solid fa-share-nodes"></i>Social Auto Posting</a>
-                <a href="../logout.php"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
-            </nav>
-
             <div class="system-card">
                 <span class="status-dot"></span>
                 <div>
@@ -58,6 +47,17 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
         </aside>
 
         <main class="main">
+            <nav class="dashboard-nav" aria-label="Dashboard">
+                <a href="#mission" class="active"><i class="fa-solid fa-gauge-high"></i>Mission Control</a>
+                <a href="#agents"><i class="fa-solid fa-robot"></i>Agents</a>
+                <a href="#preview"><i class="fa-solid fa-eye"></i>Preview</a>
+                <a href="#recent"><i class="fa-solid fa-clock-rotate-left"></i>Recent Runs</a>
+                <a href="blogs.php"><i class="fa-solid fa-newspaper"></i>All Blogs</a>
+                <a href="websiteintegration.php"><i class="fa-solid fa-globe"></i>Website Integration</a>
+                <a href="socialautoposting.php"><i class="fa-solid fa-share-nodes"></i>Social Auto Posting</a>
+                <a href="../logout.php"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+            </nav>
+
             <header class="topbar">
                 <div>
                     <p class="eyebrow">Scout -> Radar -> Quill -> Warden -> Pulse -> Publisher</p>

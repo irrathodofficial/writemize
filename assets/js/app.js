@@ -4,6 +4,9 @@ const launchBtn = document.getElementById("launchBtn");
 const activateBtn = document.getElementById("activateBtn");
 const terminalBody = document.getElementById("terminalBody");
 const runState = document.getElementById("runState");
+let activeAgent = null;
+let heartbeatTimer = null;
+let heartbeatIndex = 0;
 const agentDetails = {
     scout: {
         icon: "fa-solid fa-binoculars",
@@ -69,6 +72,33 @@ function logLine(message) {
     p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
     terminalBody.appendChild(p);
     terminalBody.scrollTop = terminalBody.scrollHeight;
+}
+
+function startHeartbeat() {
+    stopHeartbeat();
+    heartbeatTimer = setInterval(() => {
+        if (!activeAgent || runState.textContent !== "Running") return;
+
+        const messages = {
+            scout: ["Scout is reading the website content.", "Scout is extracting brand context and audience signals."],
+            radar: ["Radar is analyzing topic angles and search intent.", "Radar is matching keyword opportunities to the business."],
+            quill: ["Quill is drafting the website-specific article with OpenAI.", "Quill is preparing the featured image brief and article structure."],
+            warden: ["Warden is auditing readability, metadata, and SEO quality.", "Warden is calculating score, word count, and content readiness."],
+            pulse: ["Pulse is preparing schedule and daily publishing rhythm.", "Pulse is aligning the post with the saved publish time."],
+            publisher: ["Publisher is creating the final blog URL and handoff.", "Publisher is saving the article into the blog archive."]
+        };
+        const list = messages[activeAgent] || ["Writemize agents are still working."];
+        logLine(list[heartbeatIndex % list.length]);
+        heartbeatIndex += 1;
+    }, 14000);
+}
+
+function stopHeartbeat() {
+    if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+    }
+    heartbeatIndex = 0;
 }
 
 function setAgent(agent, state, pct) {
@@ -157,6 +187,12 @@ function handleLiveEvent(event) {
 
     if (event.type === "agent" && event.agent) {
         setAgent(event.agent, event.state || "Running", Number(event.pct || 35));
+        if (event.state === "Running") {
+            activeAgent = event.agent;
+        }
+        if (event.state === "Done" || event.state === "Error") {
+            activeAgent = null;
+        }
     }
 }
 
@@ -259,6 +295,8 @@ form.addEventListener("submit", async (event) => {
     logLine("Launching Writemize pipeline.");
 
     setAgent("scout", "Running", 20);
+    activeAgent = "scout";
+    startHeartbeat();
 
     try {
         const response = await fetch("../api/run_pipeline_live.php", {
@@ -311,16 +349,20 @@ form.addEventListener("submit", async (event) => {
 
         renderArticle(data.article || {});
         scrollToBlogPreview();
-        runState.textContent = data.openai_configured ? "Complete" : "Complete (local fallback)";
+        runState.textContent = "Complete";
+        stopHeartbeat();
         logLine("Dashboard preview updated.");
         await loadRecentPosts();
     } catch (error) {
+        stopHeartbeat();
         if (!agents.some((agent) => document.getElementById(`state-${agent}`).textContent === "Error")) {
             setAgent("scout", "Error", 100);
         }
+        activeAgent = null;
         runState.textContent = "Error";
         logLine(error.message || "Pipeline failed.");
     } finally {
+        stopHeartbeat();
         launchBtn.disabled = false;
         activateBtn.disabled = false;
         launchBtn.textContent = "Run AI Agent";

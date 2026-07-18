@@ -29,8 +29,8 @@ final class QuillAgent
         ];
 
         $article = $this->client->json(
-            'You are Quill Agent, Writemize\'s expert blog writer. Return only JSON with title, meta_description, focus_keyword, image_prompt, html.',
-            'Business context: ' . json_encode($context) . "\nTopic: " . json_encode($topic) . "\nWrite a polished SEO blog post in semantic HTML. Also create a DALL-E image_prompt. No scripts, no markdown fences.",
+            'You are Quill Agent, Writemize\'s expert blog writer. Return valid JSON only with title, meta_description, focus_keyword, image_prompt, html. Do not include markdown fences, prose, or explanations.',
+            'Business context: ' . json_encode($context) . "\nTopic: " . json_encode($topic) . "\nWrite a polished, website-specific SEO blog post in semantic HTML. Use the business website context and do not write generic Writemize demo content. Also create a DALL-E image_prompt. No scripts, no markdown fences.",
             $fallback
         );
 

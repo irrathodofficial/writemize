@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Create your Writemize account</h1>
         <?php if ($error !== ''): ?><p class="auth-error"><?= e($error) ?></p><?php endif; ?>
         <form method="post">
-            <label>Name<input name="name" type="text" required></label>
+            <label>Business Name<input name="name" type="text" required></label>
             <label>Email<input name="email" type="email" required></label>
             <label>Password<input name="password" type="password" minlength="8" required></label>
             <button type="submit">Create Account</button>

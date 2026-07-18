@@ -43,11 +43,12 @@ final class OpenAiClient
                 ['role' => 'user', 'content' => $userPrompt],
             ],
             'temperature' => 0.65,
-            'response_format' => ['type' => 'json_object'],
         ];
 
         $response = $this->postJson('https://api.openai.com/v1/chat/completions', $payload, 120);
         $content = (string) ($response['choices'][0]['message']['content'] ?? '');
+        $content = trim($content);
+        $content = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $content) ?? $content;
         $decoded = json_decode($content, true);
 
         if (!is_array($decoded)) {
@@ -72,7 +73,6 @@ final class OpenAiClient
 
         if ($this->imageModel === 'dall-e-3') {
             $payload['quality'] = 'standard';
-            $payload['response_format'] = 'url';
         }
 
         $response = $this->postJson('https://api.openai.com/v1/images/generations', $payload, 120);
