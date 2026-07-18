@@ -48,7 +48,7 @@ final class OpenAiClient
             $payload['temperature'] = 0.65;
         }
 
-        $response = $this->postJson('https://api.openai.com/v1/chat/completions', $payload, 120);
+        $response = $this->postJson('https://api.openai.com/v1/chat/completions', $payload, 300);
         $content = (string) ($response['choices'][0]['message']['content'] ?? '');
         $content = trim($content);
         $content = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $content) ?? $content;
@@ -78,7 +78,7 @@ final class OpenAiClient
             $payload['quality'] = 'standard';
         }
 
-        $response = $this->postJson('https://api.openai.com/v1/images/generations', $payload, 120);
+        $response = $this->postJson('https://api.openai.com/v1/images/generations', $payload, 180);
         $url = (string) ($response['data'][0]['url'] ?? '');
         $b64 = (string) ($response['data'][0]['b64_json'] ?? '');
 

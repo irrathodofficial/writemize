@@ -17,7 +17,7 @@ final class Pipeline
         $this->client = new OpenAiClient(
             (string) ($config['openai']['api_key'] ?? ''),
             (string) ($config['openai']['model'] ?? 'gpt-5.6'),
-            (string) ($config['openai']['image_model'] ?? 'dall-e-2'),
+            (string) ($config['openai']['image_model'] ?? 'gpt-image-1.5'),
             (bool) ($config['openai']['ssl_verify'] ?? true),
             (string) ($config['openai']['ca_bundle'] ?? '')
         );
