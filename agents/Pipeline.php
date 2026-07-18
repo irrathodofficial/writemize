@@ -51,6 +51,12 @@ final class Pipeline
             $this->emitNewLogs($emit, $logs, $logCursor);
             $this->streamLog($logs, $emit, 'Scout Agent: storing business niche, tone, audience, and content strategy.');
             $this->storeScoutContext($businessId, $context);
+            $context['current_date'] = date('Y-m-d');
+            $context['run_seed'] = date('Ymd-His') . '-' . bin2hex(random_bytes(3));
+            $context['recent_posts'] = $this->recentPostContext($businessId);
+            if ($context['recent_posts'] !== []) {
+                $this->streamLog($logs, $emit, 'Scout Agent: loaded ' . count($context['recent_posts']) . ' previous blog topics so Radar avoids repeats.');
+            }
             $completedAgents[] = 'scout';
             $this->emit($emit, ['type' => 'agent', 'agent' => 'scout', 'state' => 'Done', 'pct' => 100]);
 
@@ -234,6 +240,20 @@ final class Pipeline
             ':last_scouted_url' => \clean_text($context['website_url'] ?? '', 2048),
             ':id' => $businessId,
         ]);
+    }
+
+    private function recentPostContext(int $businessId): array
+    {
+        $stmt = $this->pdo->prepare('SELECT title, focus_keyword, meta_description, created_at FROM blog_posts WHERE business_id = :business_id ORDER BY id DESC LIMIT 12');
+        $stmt->execute([':business_id' => $businessId]);
+        $rows = $stmt->fetchAll();
+
+        return array_map(static fn (array $row): array => [
+            'title' => (string) ($row['title'] ?? ''),
+            'focus_keyword' => (string) ($row['focus_keyword'] ?? ''),
+            'meta_description' => (string) ($row['meta_description'] ?? ''),
+            'created_at' => (string) ($row['created_at'] ?? ''),
+        ], is_array($rows) ? $rows : []);
     }
 
     private function savePost(int $runId, int $businessId, array $article): int

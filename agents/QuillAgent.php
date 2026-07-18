@@ -30,7 +30,7 @@ final class QuillAgent
 
         $article = $this->client->json(
             'You are Quill Agent, Writemize\'s expert blog writer. Return valid JSON only with title, meta_description, focus_keyword, image_prompt, html. Do not include markdown fences, prose, or explanations.',
-            'Business context: ' . json_encode($context) . "\nTopic: " . json_encode($topic) . "\nWrite a polished, website-specific SEO blog post in semantic HTML using 700 to 900 words. Use the business website context and do not write generic Writemize demo content. Include an article header, 4 useful h2 sections, short paragraphs, and a practical conclusion. Also create a DALL-E image_prompt. Return compact JSON only with keys title, meta_description, focus_keyword, image_prompt, html. No scripts, no markdown fences.",
+            'Business context: ' . json_encode($context) . "\nTopic: " . json_encode($topic) . "\nWrite a polished, website-specific SEO blog post in semantic HTML using 700 to 900 words. Use the business website context and do not write generic Writemize demo content. Do not reuse the same title, introduction, section order, examples, or conclusion from recent_posts in the context. Make this run unique using run_seed from the context. Include an article header, 4 useful h2 sections, short paragraphs, and a practical conclusion. Also create a DALL-E image_prompt. Return compact JSON only with keys title, meta_description, focus_keyword, image_prompt, html. No scripts, no markdown fences.",
             $fallback
         );
 
