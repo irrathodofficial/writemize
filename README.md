@@ -1,6 +1,6 @@
 # Writemize
 
-Autonomous AI blogging dashboard, built for OpenAI Build Week.
+**Writemize is a fully autonomous platform that uses multiple AI agents working together to automate daily blog posts.**
 
 Writemize takes a business website URL and turns it into a running content pipeline. Give it a business name, a website, and a publishing time, and it researches the business, finds a fresh topic, writes a full SEO article, generates a featured image, checks the quality, schedules it, and publishes a live public page - on its own, every day.
 
@@ -229,8 +229,6 @@ database/     schema.sql
 - An analytics dashboard for post performance
 
 ---
-
-## Built for OpenAI Build Week
 
 Writemize is my attempt at proving a multi-agent workflow can actually replace a tedious, recurring business task, not just wrap one prompt in a nicer UI. Each agent has one job, the business context persists between runs, every step is visible live, and the handoff between agents is explicit end to end.
 
