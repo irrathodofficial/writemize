@@ -273,8 +273,52 @@ input {
     padding: 300px 0 10px;
 }
 
+.library-sidebar::before {
+    top: 88px;
+    height: 330px;
+}
+
+.library-sidebar::after {
+    top: 102px;
+    height: 294px;
+}
+
+.library-sidebar .sidebar-workflow {
+    top: 112px;
+    height: 280px;
+}
+
+.library-sidebar .workflow-1 {
+    top: 0;
+}
+
+.library-sidebar .workflow-2 {
+    top: 42px;
+}
+
+.library-sidebar .workflow-3 {
+    top: 92px;
+}
+
+.library-sidebar .workflow-4 {
+    top: 134px;
+}
+
+.library-sidebar .workflow-5 {
+    top: 218px;
+}
+
+.library-sidebar .workflow-6 {
+    top: 248px;
+}
+
 .library-sidebar .nav {
-    padding-top: 520px;
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 438px;
+    padding: 0;
+    z-index: 4;
 }
 
 .nav a {
@@ -837,7 +881,7 @@ button:disabled {
     align-items: center;
     justify-content: space-between;
     gap: 18px;
-    padding: 16px clamp(18px, 5vw, 70px);
+    padding: 10px clamp(18px, 5vw, 70px);
     border-bottom: 1px solid rgba(9, 92, 255, .12);
     background: rgba(255, 255, 255, .88);
     backdrop-filter: blur(14px);
@@ -854,8 +898,8 @@ button:disabled {
 }
 
 .blog-brand img {
-    width: 150px;
-    height: 54px;
+    width: 190px;
+    height: 64px;
     object-fit: contain;
 }
 
@@ -873,8 +917,8 @@ button:disabled {
     grid-template-columns: minmax(0, 1fr) minmax(360px, .72fr);
     gap: clamp(24px, 4vw, 56px);
     align-items: center;
-    min-height: 620px;
-    padding: clamp(34px, 7vw, 92px) clamp(18px, 5vw, 70px);
+    min-height: 560px;
+    padding: clamp(20px, 4vw, 58px) clamp(18px, 5vw, 70px);
 }
 
 .blog-hero-copy {
