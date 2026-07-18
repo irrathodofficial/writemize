@@ -67,10 +67,20 @@ $posts = $stmt->fetchAll();
 </head>
 <body>
     <div class="shell">
-        <aside class="sidebar">
+        <aside class="sidebar library-sidebar">
             <a class="brand" href="index.php">
                 <img class="brand-logo" src="../assets/images/logo.png" alt="Writemize">
             </a>
+
+            <div class="sidebar-workflow" aria-hidden="true">
+                <span class="workflow-node workflow-left workflow-1"><i class="fa-solid fa-binoculars"></i>Scout</span>
+                <span class="workflow-node workflow-right workflow-2"><i class="fa-solid fa-satellite-dish"></i>Radar</span>
+                <span class="workflow-node workflow-left workflow-3"><i class="fa-solid fa-feather-pointed"></i>Quill</span>
+                <span class="workflow-node workflow-right workflow-4"><i class="fa-solid fa-shield-halved"></i>Warden</span>
+                <span class="workflow-node workflow-left workflow-5"><i class="fa-solid fa-wave-square"></i>Pulse</span>
+                <span class="workflow-node workflow-right workflow-6"><i class="fa-solid fa-paper-plane"></i>Publisher</span>
+            </div>
+
             <nav class="nav">
                 <a href="index.php"><i class="fa-solid fa-gauge-high"></i>Mission Control</a>
                 <a href="blogs.php" class="active"><i class="fa-solid fa-newspaper"></i>All Blogs</a>

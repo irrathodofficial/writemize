@@ -24,7 +24,6 @@ if (!$post) {
     <header class="blog-nav">
         <a class="blog-brand" href="dashboard/index.php">
             <img src="assets/images/logo.png" alt="Writemize">
-            <span>Writemize</span>
         </a>
         <a class="blog-back" href="dashboard/index.php">Dashboard</a>
     </header>

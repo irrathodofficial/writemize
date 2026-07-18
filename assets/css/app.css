@@ -273,6 +273,10 @@ input {
     padding: 300px 0 10px;
 }
 
+.library-sidebar .nav {
+    padding-top: 520px;
+}
+
 .nav a {
     position: relative;
     color: #17233a;
@@ -845,13 +849,13 @@ button:disabled {
     gap: 12px;
     color: var(--ink);
     text-decoration: none;
-    font-size: 20px;
+    font-size: 0;
     font-weight: 900;
 }
 
 .blog-brand img {
-    width: 44px;
-    height: 44px;
+    width: 150px;
+    height: 54px;
     object-fit: contain;
 }
 
