@@ -1,123 +1,66 @@
-#  Writemize
+# Writemize
 
-**Autonomous AI blogging dashboard built for OpenAI Build Week.**
+Autonomous AI blogging dashboard, built for OpenAI Build Week.
 
-Writemize turns a business website URL into a daily, SEO-ready publishing workflow. A user registers, adds their business name, website URL, and preferred publishing time, then Writemize runs a coordinated agent pipeline that researches the business, finds fresh SEO topics, writes structured blog posts, generates featured images, audits quality, schedules the post, and creates a public preview URL.
+Writemize takes a business website URL and turns it into a running content pipeline. Give it a business name, a website, and a publishing time, and it researches the business, finds a fresh topic, writes a full SEO article, generates a featured image, checks the quality, schedules it, and publishes a live public page - on its own, every day.
 
-** Live Demo:** https://writemize.online
-
----
-
-##  Project Summary
-
-Most businesses know they should publish useful blog content, but the process is slow: research topics, understand the brand, write the article, create visuals, check SEO, schedule publishing, and repeat it again tomorrow.
-
-Writemize solves this with a fully autonomous AI content team:
-
-- ** Scout** learns the business from its website.
-- ** Radar** finds fresh, non-duplicate, SEO-friendly topic opportunities.
-- ** Quill** writes the article and creates the featured image prompt.
-- ** Warden** checks readability, structure, metadata, and SEO quality.
-- ** Pulse** prepares the publishing schedule.
-- ** Publisher** creates the final public blog URL and dashboard handoff.
-
-The result is a powerful dashboard where businesses can run the AI agents instantly for demos, or configure a daily posting time for seamless, cron-based automation.
+**Live Demo:** https://writemize.online
 
 ---
 
-##  Core Features
+## Why I built this
 
-- **Secure Authentication:** User registration and login flow.
-- **Persistent Storage:** MySQL-backed business profile storage.
-- **Configuration:** Saved business website URL and daily publishing time.
-- **Autonomous Workflow:** Multi-agent blog generation pipeline working in sync.
-- **Transparency:** Live agent log with real-time progress updates on the dashboard.
-- **Anti-Duplication:** Fresh topic generation using previous blog history to avoid duplicate topics.
-- **Advanced Text Generation:** GPT-5.6-powered topic research and article generation.
-- **Visuals:** AI featured image generation using gpt-image-1.5.
-- **Local Asset Management:** Generated images saved locally in assets/images/blogimages/.
-- **Quality Control:** SEO score, word count, reading time, and post status tracking.
-- **Preview:** Public blog view page for generated content.
-- **Content Library:** 'All Blogs' library with featured image tiles.
-- **Management:** Edit and delete options for generated posts.
-- **Automation:** Daily cron runner for scheduled publishing.
-- **Scalability:** Placeholder pages designed for future website integration and social auto-posting.
+Every business owner knows they should be blogging regularly. Almost none of them actually do it, because the day-to-day process is a grind - pick a topic, stay on-brand, write something worth reading, make a matching image, check it's SEO-sound, then do it all again tomorrow. Most people quit after a few posts.
+
+Writemize replaces that entire loop with a small team of AI agents that pass work to each other automatically, with a live log so you can watch exactly what each one is doing.
 
 ---
 
-##  Technology Stack
+## The agents
+
+- **Scout** - reads the business website and learns its niche, tone, and audience, then stores that as long-term memory
+- **Radar** - acts like an SEO strategist, picks a fresh topic every run, and checks it against post history so nothing repeats
+- **Quill** - writes the full article in structured HTML, writes the prompt for the featured image, generates the image, and saves it directly to the assets/images/blogimages/ folder.
+- **Warden** - audits the draft for SEO score, word count, heading structure, and readability before it's approved
+- **Pulse** - applies the business's publishing schedule
+- **Publisher** - creates the slug, the public URL, and hands the post off to the archive
+
+Scout's brand memory is stored in MySQL and reused by every later agent, so Radar and Quill stay consistent with the business instead of drifting from post to post.
+
+---
+
+## Core features
+
+- User registration and login
+- MySQL-backed business profiles with persistent brand memory
+- Configurable website URL and daily publish time per business
+- Live agent log with real-time updates on the dashboard
+- Anti-duplication check against previous post history
+- Article generation with GPT-5.6
+- Featured image generation with gpt-image-1.5
+- Local image storage in `assets/images/blogimages/`
+- SEO score, word count, and reading time tracking on every post
+- Public preview page for each generated article
+- Content library with edit and delete controls
+- Daily cron runner for unattended publishing
+- Placeholder pages for future website and social integrations
+
+---
+
+## Tech stack
 
 - **Backend:** PHP 8.3
 - **Database:** MySQL
-- **Frontend:** HTML, CSS, JavaScript (Vanilla)
-- **AI Text Model:** GPT-5.6
-- **AI Image Model:** gpt-image-1.5
-- **Local Environment:** WAMP / Apache / MySQL
-- **Automation:** PHP cron script
-- **Build Assistant:** OpenAI Codex
+- **Frontend:** HTML, CSS, vanilla JavaScript
+- **AI text model:** GPT-5.6
+- **AI image model:** gpt-image-1.5
+- **Local environment:** WAMP / Apache / MySQL
+- **Automation:** PHP cron
+- **Build assistant:** OpenAI Codex
 
 ---
 
-##  Agent Architecture
-
-### Scout Agent
-Scout receives the business name and website URL. It fetches readable website content, extracts brand context, and stores memory for future runs:
-- Business niche
-- Brand tone
-- Audience
-- Website excerpt
-- Content strategy
-- Last scouted URL and timestamp
-
-*This context is stored in MySQL and reused by later agents to ensure brand consistency.*
-
-### Radar Agent
-Radar uses GPT-5.6 to act as an SEO strategist. It receives Scout context plus recent blog history, then creates a fresh topic. Radar specifically avoids repeating previous post titles and uses a unique run seed so each run can produce a radically different angle.
-
-Radar outputs:
-- Blog topic
-- Focus keyword
-- Search intent
-- Topic angle
-- Related keywords
-- Competitor-style angles
-
-### Quill Agent
-Quill uses GPT-5.6 to write a complete website-specific SEO article in semantic HTML. It is strictly instructed not to reuse the same title, intro, section order, examples, or conclusion from recent posts.
-
-Quill outputs:
-- Title
-- Meta description
-- Focus keyword
-- Structured article HTML
-- Featured image prompt
-
-### Artist / Image Generation
-The image generation step uses the configured OpenAI image model (OPENAI_IMAGE_MODEL=gpt-image-1.5). Generated image files are downloaded and saved into assets/images/blogimages/. The saved local image URL is then attached to the respective blog post in the database.
-
-### Warden Agent
-Warden acts as the final editor and audits the article for:
-- Meta description presence
-- Word count
-- Focus keyword usage
-- Heading structure
-- Readability status
-
-It calculates the SEO score, reading time, word count, and marks the post as review-ready or approved.
-
-### Pulse Agent
-Pulse applies the business publishing schedule and prepares the post for the saved daily publishing time.
-
-### Publisher Agent
-Publisher handles the final deployment. It creates:
-- URL Slug
-- Public blog URL
-- Final post status
-- Dashboard/archive handoff
-
----
-
-##  How We Used GPT-5.6
+## How GPT-5.6 is used
 
 GPT-5.6 powers the reasoning-heavy content steps in Writemize:
 - **Scout** uses GPT-5.6 to process raw website text and intelligently extract the brand's core context (niche, tone, and target audience).
@@ -127,65 +70,55 @@ GPT-5.6 powers the reasoning-heavy content steps in Writemize:
 - GPT-5.6 receives recent post history so it can reason about avoiding duplicate content and producing a new angle for every single run.
 - Configuration is handled dynamically through the `.env` file (`OPENAI_MODEL=gpt-5.6`).
 
-*Note: Because GPT-5 family models support only default temperature in our tested API setup, Writemize automatically avoids sending unsupported temperature parameters for GPT-5 models to ensure stability.*
+---
+
+## How Codex was used
+
+Codex was the engineering partner for this build, from the schema to the last bug fix.
+
+It helped with the PHP project structure, the MySQL schema, the authentication flow, the agent orchestration and how data passes between agents, the live NDJSON streaming for the dashboard log, the dashboard UI itself, the blog library CRUD screens, the public preview page, the cron script, and the OpenAI API integration for both text and images. It also helped debug real issues along the way - SSL problems on local WAMP, unsupported model parameters, timeouts, and streaming output. Every piece of Codex-generated code was read and understood before it was committed.
 
 ---
 
-##  How We Used Codex
-
-OpenAI Codex was used as the primary engineering assistant and co-pilot during the Build Week development process.
-
-Codex actively helped build and iterate on:
-- PHP project structure and architectural design.
-- MySQL schema and relationship mapping.
-- Secure Authentication flow.
-- Agent orchestration classes and data passing.
-- Live NDJSON streaming API for real-time frontend updates.
-- Dashboard UI and visual agent visualization.
-- 'All Blogs' CRUD interface.
-- Public blog view page rendering.
-- Cron automation scripts.
-- OpenAI API integration (Text and Image).
-- Advanced error handling for SSL, unsupported model parameters, timeouts, and streaming output.
-- README and hackathon-ready documentation.
-
-The project was developed through an iterative Codex coding session where Codex implemented changes, debugged API/runtime errors, and refined the UX based on live browser feedback.
-
----
-
-##  Installation & Setup
+## Installation
 
 ### Requirements
+
 - PHP 8.3
 - MySQL 8 or compatible MariaDB
 - Apache/Nginx or WAMP/XAMPP
 - PHP extensions: PDO MySQL, cURL, JSON, OpenSSL
-- OpenAI API key
+- An OpenAI API key
 
-### 1. Clone or copy the project
+### 1. Get the code
+
 Place the project in your web server root.
+
+```
 Example for WAMP: C:\wamp64\www\Writemize
+```
 
 ### 2. Create the database
-Create a MySQL database:
+
+```sql
 CREATE DATABASE writemize CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
 ### 3. Import the schema
-Import the schema located at database/schema.sql.
 
-Using phpMyAdmin:
-1. Open phpMyAdmin.
-2. Select the writemize database.
-3. Go to Import.
-4. Choose database/schema.sql.
-5. Run the import.
+Using the MySQL CLI:
 
-Using MySQL CLI:
+```bash
 mysql -u root -p writemize < database/schema.sql
+```
+
+Or with phpMyAdmin: open the `writemize` database, go to Import, and select `database/schema.sql`.
 
 ### 4. Configure environment variables
-Create or update the .env file in the project root:
 
+Create a `.env` file in the project root:
+
+```env
 APP_NAME=Writemize
 APP_ENV=development
 APP_DEBUG=true
@@ -199,115 +132,106 @@ DB_PASS=
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-5.6
 OPENAI_IMAGE_MODEL=gpt-image-1.5
-OPENAI_SSL_VERIFY=false
+```
 
-* Warning: Do not commit your real .env file or API key to version control.*
+Do not commit your real `.env` file or API key to version control.
 
 ### 5. Start the app
-Open your local server URL: http://localhost/Writemize/
-Register a user, log in, and open the dashboard to begin.
+
+Open `http://localhost/Writemize/`, register a user, log in, and open the dashboard.
 
 ---
 
-##  Running the Agent Pipeline
+## Running the pipeline
 
-From the dashboard:
-1. Enter the business name.
-2. Enter the website URL.
-3. Set a daily publish time.
-4. Click AI Agent Activate to save the business memory and run the Scout agent.
-5. Click Run AI Agent to trigger the full pipeline instantly.
+1. Enter the business name
+2. Enter the website URL
+3. Set a daily publish time
+4. Click **AI Agent Activate** to save the business memory and run Scout
+5. Click **Run AI Agent** to trigger the full pipeline
 
-*The live agent log will dynamically update and show each stage as it executes in the background.*
+The live agent log updates as each stage runs in the background.
 
 ---
 
-##  Daily Cron Setup
+## Daily automation
 
-Writemize includes a scheduled automation script: cron/daily_publish.php
-This script checks businesses where daily posting is enabled and runs the pipeline when the saved publish time is due.
+`cron/daily_publish.php` checks every business with daily posting enabled and runs the pipeline once their configured publish time is due.
 
-Example Windows Task Scheduler command:
-C:\wamp64\bin\php\php8.3.0\php.exe C:\wamp64\www\Writemize\cron\daily_publish.php
+Linux cron:
 
-Example Linux cron:
+```bash
 * * * * * /usr/bin/php /var/www/html/Writemize/cron/daily_publish.php
+```
+
+Windows Task Scheduler:
+
+```
+C:\wamp64\bin\php\php8.3.0\php.exe C:\wamp64\www\Writemize\cron\daily_publish.php
+```
 
 ---
 
-##  Database Tables
+## Database tables
 
-### users
-Stores registered users and authentication credentials.
-
-### businesses
-Stores the business profile, website URL, publish time, daily automation state, and Scout memory.
-*Important fields: website_url, publish_time, daily_posting_enabled, last_daily_run_date, scout_context, niche, tone, audience, content_strategy*
-
-### blog_runs
-Stores pipeline run status, real-time logs, generated topic, SEO score, image URL, and publish URL.
-
-### blog_posts
-Stores the final generated blog content:
-*Title, Slug, Meta description, Focus keyword, HTML article, Featured image URL, SEO score, Word count, Reading time, Status, Public URL, Schedule time.*
+| Table | Purpose |
+|---|---|
+| `users` | Registered users and login credentials |
+| `businesses` | Business profile, website URL, publish time, automation state, Scout's memory |
+| `blog_runs` | Pipeline run status, live logs, topic, SEO score, image URL, publish URL |
+| `blog_posts` | Final content — title, slug, meta description, focus keyword, HTML, image, SEO score, word count, status |
 
 ---
 
-##  Important Project Paths
+## Project structure
 
-agents/ (OpenAiClient.php, Pipeline.php, ScoutAgent.php, RadarAgent.php, QuillAgent.php, WardenAgent.php, PulseAgent.php, PublisherAgent.php)
-api/ (activate_agent.php, run_pipeline.php, run_pipeline_live.php, recent_posts.php)
-cron/ (daily_publish.php)
-dashboard/ (index.php, blogs.php, blogedit.php, websiteintegration.php, socialautoposting.php)
-assets/images/ (logo.png, agentstanding.png, blogimages/)
-database/ (schema.sql)
-
----
-
-##  Demo Flow
-
-1. Open the landing page.
-2. Register or log in.
-3. Add a business website URL.
-4. Click AI Agent Activate.
-5. Click Run AI Agent.
-6. Watch the live agent log execute steps:
-   - Scout learns the business.
-   - Radar chooses a fresh topic.
-   - Quill writes the blog.
-   - Image generation creates a featured image.
-   - Warden scores SEO.
-   - Pulse schedules.
-   - Publisher creates the URL.
-7. View the generated article.
-8. Open All Blogs to see the archive with edit/delete actions.
+```
+agents/       OpenAiClient.php, Pipeline.php, ScoutAgent.php, RadarAgent.php, QuillAgent.php, WardenAgent.php, PulseAgent.php, PublisherAgent.php
+api/          activate_agent.php, run_pipeline.php, run_pipeline_live.php, recent_posts.php
+cron/         daily_publish.php
+dashboard/    index.php, blogs.php, blogedit.php, websiteintegration.php, socialautoposting.php
+assets/       logo.png, agentstanding.png, images/blogimages/
+database/     schema.sql
+```
 
 ---
 
-##  Security Notes
+## Demo flow
 
-- Keep .env private and secure.
-- Do not commit OpenAI API keys to GitHub.
-- Generated public blog pages render trusted AI HTML generated by the app. For production deployment, add stricter HTML sanitization and moderation protocols.
-- OPENAI_SSL_VERIFY=false is useful for bypassing local WAMP SSL certificate issues. Use proper CA verification in production environments.
-
----
-
-##  Future Improvements
-
-- WordPress,Shopify publishing integration.
-- LinkedIn/Facebook social auto posting.
-- XML Sitemap submission integration.
-- User-selectable content strategies (e.g., Aggressive SEO vs. Thought Leadership).
-- Real-time trend APIs for Radar topic generation.
-- Editorial approval workflow before publishing.
-- Multi-business support per user account.
-- Analytics dashboard to track generated post traffic.
+1. Open the landing page
+2. Register or log in
+3. Add a business and its website URL
+4. Click AI Agent Activate
+5. Click Run AI Agent
+6. Watch the live log: Scout learns the business, Radar picks a topic, Quill writes the article, the image is generated, Warden scores it, Pulse schedules it, Publisher creates the URL
+7. View the generated article
+8. Open All Blogs to see the archive
 
 ---
 
-##  Hackathon Statement
+## Security notes
 
-Writemize was built for OpenAI Build Week as an autonomous AI blogging dashboard. The core idea is to demonstrate a real-world multi-agent workflow, not just a single prompt wrapper. Each agent has a separate job, persistent business memory, live execution logs, database-backed outputs, and a clear publishing handoff.
+- `.env` is kept out of version control and must never contain a real key in a public repo
+- Local development runs with relaxed SSL verification to work around a WAMP certificate issue - production deployments should use full CA verification
+- Generated article HTML is currently rendered as-is; stricter output sanitization is planned before any public production use
 
-Built by Ishwar Rathod with OpenAI GPT-5.6, OpenAI image generation, and Codex.
+---
+
+## What's next
+
+- WordPress and Shopify publishing integration
+- LinkedIn and Facebook social auto-posting
+- XML sitemap submission
+- Selectable content strategies, such as aggressive SEO versus thought leadership
+- Real-time trend data feeding into Radar
+- A manual approval step before publishing
+- Multi-business support per account
+- An analytics dashboard for post performance
+
+---
+
+## Built for OpenAI Build Week
+
+Writemize is my attempt at proving a multi-agent workflow can actually replace a tedious, recurring business task, not just wrap one prompt in a nicer UI. Each agent has one job, the business context persists between runs, every step is visible live, and the handoff between agents is explicit end to end.
+
+Built by Ishwar Rathod, using GPT-5.6, OpenAI image generation, and Codex.
