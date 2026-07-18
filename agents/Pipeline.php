@@ -16,8 +16,8 @@ final class Pipeline
         $this->pdo = $pdo;
         $this->client = new OpenAiClient(
             (string) ($config['openai']['api_key'] ?? ''),
-            (string) ($config['openai']['model'] ?? 'gpt-4.1-mini'),
-            (string) ($config['openai']['image_model'] ?? 'dall-e-3'),
+            (string) ($config['openai']['model'] ?? 'gpt-5.6'),
+            (string) ($config['openai']['image_model'] ?? 'dall-e-2'),
             (bool) ($config['openai']['ssl_verify'] ?? true),
             (string) ($config['openai']['ca_bundle'] ?? '')
         );

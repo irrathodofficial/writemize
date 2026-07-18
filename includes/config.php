@@ -46,8 +46,8 @@ $app = [
 
 $openai = [
     'api_key' => (string) env('OPENAI_API_KEY', ''),
-    'model' => (string) env('OPENAI_MODEL', 'gpt-4.1-mini'),
-    'image_model' => (string) env('OPENAI_IMAGE_MODEL', 'dall-e-3'),
+    'model' => (string) env('OPENAI_MODEL', 'gpt-5.6'),
+    'image_model' => (string) env('OPENAI_IMAGE_MODEL', 'dall-e-2'),
     'ssl_verify' => filter_var(
         env('OPENAI_SSL_VERIFY', $app['env'] === 'production' ? 'true' : 'false'),
         FILTER_VALIDATE_BOOLEAN
