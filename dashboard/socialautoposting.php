@@ -16,17 +16,11 @@ $config = require WRITEMIZE_ROOT . '/includes/config.php';
 </head>
 <body>
     <div class="shell">
-        <aside class="sidebar">
+        <aside class="sidebar settings-sidebar">
             <a class="brand" href="index.php">
                 <img class="brand-logo" src="../assets/images/logo.png" alt="Writemize">
             </a>
-            <nav class="nav">
-                <a href="index.php"><i class="fa-solid fa-gauge-high"></i>Mission Control</a>
-                <a href="blogs.php"><i class="fa-solid fa-newspaper"></i>All Blogs</a>
-                <a href="websiteintegration.php"><i class="fa-solid fa-globe"></i>Website Integration</a>
-                <a href="socialautoposting.php" class="active"><i class="fa-solid fa-share-nodes"></i>Social Auto Posting</a>
-                <a href="../logout.php"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
-            </nav>
+           
         </aside>
         <main class="main">
             <section class="settings-page">

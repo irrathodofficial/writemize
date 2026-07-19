@@ -321,6 +321,20 @@ input {
     z-index: 4;
 }
 
+.settings-sidebar .nav {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 560px;
+    padding: 0;
+    z-index: 4;
+}
+
+.settings-sidebar .nav a {
+    min-height: 42px;
+    padding: 5px 6px 5px 8px;
+}
+
 .nav a {
     position: relative;
     color: #17233a;
