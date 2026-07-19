@@ -5,9 +5,9 @@ namespace Writemize\Agents;
 
 final class QuillAgent
 {
-    private OpenAiClient $client;
+    private \Writemize\Agents\OpenAiClient $client;
 
-    public function __construct(OpenAiClient $client)
+    public function __construct(\Writemize\Agents\OpenAiClient $client)
     {
         $this->client = $client;
     }
@@ -30,7 +30,7 @@ final class QuillAgent
 
         $article = $this->client->json(
             'You are Quill Agent, Writemize\'s expert blog writer. Return valid JSON only with title, meta_description, focus_keyword, image_prompt, html. Do not include markdown fences, prose, or explanations.',
-            'Business context: ' . json_encode($context) . "\nTopic: " . json_encode($topic) . "\nWrite a polished, website-specific SEO blog post in semantic HTML using 700 to 900 words. Use the business website context and do not write generic Writemize demo content. Do not reuse the same title, introduction, section order, examples, or conclusion from recent_posts in the context. Make this run unique using run_seed from the context. Include an article header, 4 useful h2 sections, short paragraphs, and a practical conclusion. Also create a DALL-E image_prompt. Return compact JSON only with keys title, meta_description, focus_keyword, image_prompt, html. No scripts, no markdown fences.",
+            'Business context: ' . json_encode($context) . "\nTopic: " . json_encode($topic) . "\nWrite a polished, website-specific SEO blog post in semantic HTML using 700 to 900 words. Use the business website context and do not write generic Writemize demo content. Do not reuse the same title, introduction, section order, examples, or conclusion from recent_posts in the context. Make this run unique using run_seed from the context. Include an article header, 4 useful h2 sections, short paragraphs, and a practical conclusion. Also create a GPT Image 2 image_prompt. Return compact JSON only with keys title, meta_description, focus_keyword, image_prompt, html. No scripts, no markdown fences.",
             $fallback
         );
 
@@ -42,7 +42,7 @@ final class QuillAgent
 
     public function createImage(array $article, array &$logs): array
     {
-        $logs[] = 'Quill Agent: sending featured image brief to DALL-E.';
+        $logs[] = 'Quill Agent: sending featured image brief to GPT Image 2.';
         $prompt = (string) ($article['image_prompt'] ?? $this->imagePrompt((string) ($article['title'] ?? 'AI blogging dashboard')));
         $image = $this->client->image($prompt);
 
@@ -55,13 +55,13 @@ final class QuillAgent
                 return $article;
             }
 
-            throw new \RuntimeException('DALL-E image was generated, but Writemize could not save it locally.');
+            throw new \RuntimeException('GPT Image 2 image was generated, but Writemize could not save it locally.');
         }
 
         if (isset($image['b64_json'])) {
             $bytes = base64_decode((string) $image['b64_json'], true);
             if (!is_string($bytes) || $bytes === '') {
-                throw new \RuntimeException('DALL-E returned image data, but it could not be decoded.');
+                throw new \RuntimeException('GPT Image 2 returned image data, but it could not be decoded.');
             }
 
             $localUrl = $this->storeGeneratedImageBytes($bytes, (string) ($article['title'] ?? 'writemize-blog'), $logs);
@@ -70,10 +70,10 @@ final class QuillAgent
                 return $article;
             }
 
-            throw new \RuntimeException('DALL-E image was generated, but Writemize could not save it locally.');
+            throw new \RuntimeException('GPT Image 2 image was generated, but Writemize could not save it locally.');
         }
 
-        throw new \RuntimeException('DALL-E did not return a featured image.');
+        throw new \RuntimeException('GPT Image 2 did not return a featured image.');
     }
 
     private function storeGeneratedImageFromUrl(string $remoteUrl, string $title, array &$logs): ?string
@@ -85,7 +85,7 @@ final class QuillAgent
         $bytes = @file_get_contents($remoteUrl, false, $context);
 
         if (!is_string($bytes) || $bytes === '') {
-            $logs[] = 'Quill Agent: DALL-E image URL received, but local image download failed.';
+            $logs[] = 'Quill Agent: GPT Image 2 image URL received, but local image download failed.';
             return null;
         }
 

@@ -74,10 +74,6 @@ final class OpenAiClient
             'size' => '1024x1024',
         ];
 
-        if ($this->imageModel === 'dall-e-3') {
-            $payload['quality'] = 'standard';
-        }
-
         $response = $this->postJson('https://api.openai.com/v1/images/generations', $payload, 180);
         $url = (string) ($response['data'][0]['url'] ?? '');
         $b64 = (string) ($response['data'][0]['b64_json'] ?? '');

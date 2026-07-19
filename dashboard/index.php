@@ -103,7 +103,7 @@ $publishTime = substr((string) ($business['publish_time'] ?? '09:00'), 0, 5);
                 $agents = [
                     ['scout', 'Scout', 'fa-solid fa-binoculars', 'Business context and website intelligence'],
                     ['radar', 'Radar', 'fa-solid fa-satellite-dish', 'Trend, topic, keyword, and intent research'],
-                    ['quill', 'Quill', 'fa-solid fa-feather-pointed', 'SEO article drafting and DALL-E image brief'],
+                    ['quill', 'Quill', 'fa-solid fa-feather-pointed', 'SEO article drafting and GPT Image 2 image brief'],
                     ['warden', 'Warden', 'fa-solid fa-shield-halved', 'Readability, structure, and SEO quality control'],
                     ['pulse', 'Pulse', 'fa-solid fa-wave-square', 'Publishing rhythm and schedule preparation'],
                     ['publisher', 'Publisher', 'fa-solid fa-paper-plane', 'Final public blog URL and handoff'],

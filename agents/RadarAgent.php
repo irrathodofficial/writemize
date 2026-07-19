@@ -5,9 +5,9 @@ namespace Writemize\Agents;
 
 final class RadarAgent
 {
-    private OpenAiClient $client;
+    private \Writemize\Agents\OpenAiClient $client;
 
-    public function __construct(OpenAiClient $client)
+    public function __construct(\Writemize\Agents\OpenAiClient $client)
     {
         $this->client = $client;
     }

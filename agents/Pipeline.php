@@ -8,16 +8,16 @@ use Throwable;
 
 final class Pipeline
 {
-    private OpenAiClient $client;
+    private \Writemize\Agents\OpenAiClient $client;
     private PDO $pdo;
 
     public function __construct(PDO $pdo, array $config)
     {
         $this->pdo = $pdo;
-        $this->client = new OpenAiClient(
+        $this->client = new \Writemize\Agents\OpenAiClient(
             (string) ($config['openai']['api_key'] ?? ''),
             (string) ($config['openai']['model'] ?? 'gpt-5.6'),
-            (string) ($config['openai']['image_model'] ?? 'gpt-image-1.5'),
+            (string) ($config['openai']['image_model'] ?? 'gpt-image-2'),
             (bool) ($config['openai']['ssl_verify'] ?? true),
             (string) ($config['openai']['ca_bundle'] ?? '')
         );
@@ -82,7 +82,7 @@ final class Pipeline
             $logCursor = count($logs);
             $article = $quill->run($context, $topic, $logs);
             $this->emitNewLogs($emit, $logs, $logCursor);
-            $this->streamLog($logs, $emit, 'Quill Agent: article draft received; preparing DALL-E featured image request.');
+            $this->streamLog($logs, $emit, 'Quill Agent: article draft received; preparing GPT Image 2 featured image request.');
             $this->emit($emit, ['type' => 'agent', 'agent' => 'quill', 'state' => 'Running', 'pct' => 75]);
             $logCursor = count($logs);
             $article = $quill->createImage($article, $logs);

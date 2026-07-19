@@ -28,9 +28,9 @@ const agentDetails = {
         icon: "fa-solid fa-feather-pointed",
         title: "Quill Agent",
         stage: "Article and Image Creation",
-        summary: "Quill writes the blog in clean semantic HTML and prepares the DALL-E featured image brief using the selected topic and brand context.",
+        summary: "Quill writes the blog in clean semantic HTML and prepares the GPT Image 2 featured image brief using the selected topic and brand context.",
         inputs: ["Radar topic", "Focus keyword", "Scout tone", "Audience and business strategy"],
-        outputs: ["SEO article draft", "Meta description", "Featured image prompt", "Generated image saved locally"]
+        outputs: ["SEO article draft", "Meta description", "GPT Image 2 prompt", "Generated image saved locally"]
     },
     warden: {
         icon: "fa-solid fa-shield-halved",
@@ -220,7 +220,7 @@ function renderArticle(article) {
         image.textContent = "";
     } else {
         image.style.backgroundImage = "";
-        image.textContent = article.image_prompt ? "DALL-E prompt prepared" : "Featured image fallback";
+        image.textContent = article.image_prompt ? "GPT Image 2 prompt prepared" : "Featured image fallback";
     }
 
     const link = document.getElementById("publishUrl");
