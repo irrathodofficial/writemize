@@ -97,7 +97,7 @@ final class Pipeline
             $this->emit($emit, ['type' => 'log', 'message' => 'Warden Agent: started.']);
             $this->streamLog($logs, $emit, 'Warden Agent: checking metadata, headings, readability, keyword usage, and word count.');
             $logCursor = count($logs);
-            $article = (new WardenAgent())->run($article, $topic, $logs);
+            $article = (new WardenAgent($this->client))->run($article, $topic, $logs);
             $this->emitNewLogs($emit, $logs, $logCursor);
             $this->streamLog($logs, $emit, 'Warden Agent: SEO score calculated at ' . (int) ($article['seo_score'] ?? 0) . '.');
             $completedAgents[] = 'warden';
